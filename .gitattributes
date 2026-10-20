@@ -1,0 +1,3 @@
+# Batch files need Windows line endings or cmd.exe can lose its :labels,
+# including in GitHub's "Download ZIP".
+*.bat text eol=crlf

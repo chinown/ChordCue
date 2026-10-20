@@ -1,16 +1,31 @@
 # ChordCue
 
-A browser extension that shows the chords of whatever you're playing, in time with the music. It shows the current chord and its diagram, the next chord counted in by beats, a lane of upcoming chords, and a bar chart of the whole song. You can transpose, set a capo, and switch between guitar, ukulele and piano diagrams.
+**Live chords for whatever you're playing.** Open a song on YouTube, YouTube Music, Spotify or SoundCloud, and ChordCue shows the chord being played right now and counts you in to the next one. It stays in step with the music, so you can play along on guitar, ukulele or piano.
 
-It works on **YouTube**, **YouTube Music**, **Spotify** (web player and the desktop app) and **SoundCloud**, in any Chromium browser (Brave, Chrome, Edge, Opera).
+![The ChordCue panel in three live views: guitar, piano transposed up two semitones, and ukulele](docs/screenshots/hero.png)
 
-The chord recognition runs on your own PC: a small Python server listens on `127.0.0.1:8765` and does the analysis on your GPU. A new song takes about 20 seconds; after that it opens instantly.
+## What it does
+
+- **Follows what's playing.** The panel detects the song in your tab and stays in sync with the page's own player: pause, seek or skip, and the chords follow. While an ad plays, the chords wait.
+- **Shows the next chord before it arrives.** The **Next** card counts down the beats to the change, and a lane of upcoming chords slides past a playhead.
+- **Diagrams for three instruments.** Guitar (open and barre shapes), ukulele and piano, for all 14 chord types it recognizes in every key. Click a diagram to see another shape.
+- **Transpose and capo.** Move the song into a key that suits your voice, or set a capo and see which shapes to play. It also suggests the capo fret that gives the easiest open chords.
+- **Chart of the whole song.** Every bar with its chords. The current bar is highlighted, and clicking any bar jumps the song there.
+- **Spotify desktop app too.** A companion window follows the Spotify app on Windows and can seek it.
+- **Runs on your own PC.** A local server finds the chords with AI models on your GPU. A new song takes about 20 seconds, and after that it opens instantly.
+
+| Live view | Chart view | Minimized |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/panel-live.png" width="260" alt="Live view: the current chord F with its barre diagram, the next chord C in one beat, the chord lane, the controls, and every chord in the song"> | <img src="docs/screenshots/panel-chart.png" width="260" alt="Chart view: four bars per row with the chords in each bar and the current bar highlighted"> | <img src="docs/screenshots/pill.png" width="120" alt="Minimized pill showing the current chord C and the next chord G"> |
+
+It works in any Chromium browser: Brave, Chrome, Edge or Opera.
 
 ```
-extension/        the browser extension (Manifest V3, no build step)
-chordcue/        the analysis server (FastAPI)
-tools/            icon generator
-tests/            backend tests (extension tests live in extension/tests)
+extension/   the browser extension (Manifest V3, no build step)
+chordcue/    the analysis server (FastAPI)
+docs/        README screenshots
+tools/       icon generator
+tests/       backend tests (extension tests live in extension/tests)
 ```
 
 ## Setup

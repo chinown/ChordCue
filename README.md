@@ -28,17 +28,65 @@ tools/       icon generator
 tests/       backend tests (extension tests live in extension/tests)
 ```
 
-## Setup
+## Install
 
-You need Python 3.12, [ffmpeg](https://ffmpeg.org/) on your PATH, and ideally an NVIDIA GPU.
+ChordCue isn't in any extension store. You download it from this page and run it on your own computer.
 
-1. Double-click **`setup.bat`**. It creates `.venv` and installs PyTorch (CUDA 12.8) and the rest. It downloads about 3 GB once.
-2. Double-click **`start-server.bat`** and leave the window open while you play. The first run downloads the chord, beat and separation models (about 150 MB).
-3. Load the extension:
+### What you need
+
+- **Windows 10 or 11.** The setup scripts and the Spotify desktop window are Windows-only; see [Other systems](#other-systems) below.
+- **[Python 3.12](https://www.python.org/downloads/).** When installing, tick **Add python.exe to PATH**.
+- **ffmpeg.** In a terminal, run:
+
+  ```bash
+  winget install Gyan.FFmpeg
+  ```
+
+  Then open a new terminal so it's on your PATH.
+- **About 5 GB of free disk space** for Python packages and models.
+- **A Chromium browser:** Brave, Chrome, Edge or Opera.
+- **An NVIDIA GPU is optional.** With one, the server also separates the instruments from the vocals before finding chords, which is slightly more accurate. Without one, it skips that step, and a song still takes about 20 seconds on a 6-core CPU.
+
+### Steps
+
+1. **Get the code.** Either clone it:
+
+   ```bash
+   git clone https://github.com/chinown/ChordCue.git
+   ```
+
+   Or click **Code → Download ZIP** at the top of this page and unzip it.
+2. **Double-click `setup.bat`** in the ChordCue folder. It creates a Python environment in `.venv` and installs PyTorch and the other requirements from `requirements.txt`. That's about 3 GB, downloaded once.
+3. **Double-click `start-server.bat`** and leave its window open while you play music. On the first run it downloads the chord, beat and separation models (about 150 MB). It's ready when it prints `ChordCue server on http://127.0.0.1:8765`.
+4. **Load the extension in your browser:**
    - Open `brave://extensions` (or `chrome://extensions`, `edge://extensions`, `opera://extensions`).
    - Turn on **Developer mode**.
-   - Click **Load unpacked** and pick the **`extension`** folder.
-   - Pin ChordCue to the toolbar.
+   - Click **Load unpacked** and pick the **`extension`** folder inside ChordCue.
+   - Pin ChordCue to the toolbar. Its popup shows a green "Server on" when everything is connected.
+
+**To update later,** run `git pull` (or download the ZIP again). Then run `setup.bat` again if `requirements.txt` changed, and click the reload icon on ChordCue in your browser's extensions page.
+
+### Other systems
+
+The server should also run on macOS and Linux, but this hasn't been tested. Install ffmpeg with your package manager, then from the ChordCue folder:
+
+```bash
+python3.12 -m venv .venv
+```
+
+```bash
+.venv/bin/pip install torch==2.11.0 torchaudio==2.11.0
+```
+
+```bash
+.venv/bin/pip install -r requirements.txt
+```
+
+```bash
+.venv/bin/python -m chordcue.server
+```
+
+On Linux with an NVIDIA GPU, add `--index-url https://download.pytorch.org/whl/cu128` to the torch install. The Spotify desktop window needs Windows; everything else works the same.
 
 ## Using it
 

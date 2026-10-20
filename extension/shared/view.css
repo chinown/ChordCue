@@ -1,0 +1,180 @@
+/* ChordLane view styles. Used inside the in-page panel's shadow root and by
+   the companion window, both of which put .cl-theme on their outer element. */
+
+.cl-theme {
+  --bg: #121318;
+  --surface: #1a1c23;
+  --surface-2: #232630;
+  --surface-3: #2c303c;
+  --border: #30343f;
+  --text: #eef0f4;
+  --muted: #9ba1ae;
+  --faint: #6c7280;
+  --accent: #f5a524;
+  --accent-soft: rgba(245, 165, 36, 0.16);
+  --accent-ink: #1d1400;
+  --next: #7cc4ff;
+  --next-soft: rgba(124, 196, 255, 0.14);
+  --danger: #ff7a7a;
+  --radius: 12px;
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  color-scheme: dark;
+}
+
+.cl-theme *, .cl-theme *::before, .cl-theme *::after { box-sizing: border-box; }
+.cl-theme button { font: inherit; color: inherit; cursor: pointer; }
+.cl-theme button:focus-visible, .cl-theme select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.cl-view { display: flex; flex-direction: column; gap: 10px; }
+
+.cl-meta {
+  display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  color: var(--muted); font-size: 12px;
+}
+.cl-meta b { color: var(--text); }
+
+/* ------------------------------------------------------------ cards */
+
+.cl-cards { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 8px; }
+.cl-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px 10px;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 210px;
+}
+.cl-card-head {
+  align-self: stretch; display: flex; justify-content: space-between;
+  font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+}
+.cl-now { border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow: inset 0 0 0 1px var(--accent-soft); }
+.cl-now .cl-card-head span:first-child { color: var(--accent); }
+.cl-next .cl-card-head span:first-child { color: var(--next); }
+.cl-next.is-soon { border-color: var(--next); background: linear-gradient(var(--next-soft), var(--surface) 70%); }
+.cl-clock { font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0; color: var(--faint); }
+.cl-count { text-transform: none; letter-spacing: 0; color: var(--next); }
+
+.cl-name {
+  font-size: 34px; font-weight: 800; line-height: 1.1; margin: 4px 0 6px;
+  letter-spacing: -0.01em; white-space: nowrap; min-height: 38px;
+}
+.cl-next .cl-name { font-size: 26px; margin-top: 8px; color: color-mix(in srgb, var(--text) 85%, var(--next)); }
+.cl-suffix { font-size: .62em; font-weight: 700; margin-left: 1px; }
+.cl-now.is-empty .cl-name { color: var(--faint); }
+
+.cl-diagram { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 120px; width: 100%; }
+/* Diagrams keep their drawn size but shrink to fit narrow cards (piano is wide). */
+.cl-diagram svg, .cl-pal svg { max-width: 100%; height: auto; }
+
+.cl-beats { display: flex; gap: 6px; margin-top: 6px; }
+.cl-beats i { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-3); transition: background .06s, transform .06s; }
+.cl-beats i:first-child { width: 11px; height: 11px; margin-top: -1px; }
+.cl-beats i.is-on { background: var(--accent); transform: scale(1.15); }
+
+.cl-countbar { align-self: stretch; height: 4px; margin-top: 8px; border-radius: 2px; background: var(--surface-3); overflow: hidden; }
+.cl-countbar i { display: block; height: 100%; background: var(--next); transform-origin: left; transform: scaleX(0); }
+
+/* ------------------------------------------------------------ lane */
+
+.cl-lane {
+  position: relative; height: 46px; overflow: hidden; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.cl-lane.cl-seekable { cursor: pointer; }
+.cl-lane-track { position: absolute; inset: 0; will-change: transform; }
+.cl-block {
+  position: absolute; top: 7px; height: 30px; border-radius: 7px;
+  background: var(--surface-3); color: var(--text);
+  display: flex; align-items: center; padding: 0 7px; overflow: hidden; white-space: nowrap;
+  font-weight: 700; font-size: 13px;
+}
+.cl-block .cl-suffix { font-size: .82em; }
+.cl-block-nc { background: transparent; border: 1px dashed var(--border); }
+.cl-block.is-current { background: var(--accent); color: var(--accent-ink); }
+.cl-tick { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255, 255, 255, .06); }
+.cl-playhead {
+  position: absolute; top: 0; bottom: 0; left: 28%; width: 2px; margin-left: -1px;
+  background: var(--text); box-shadow: 0 0 8px rgba(255, 255, 255, .5); pointer-events: none;
+}
+
+/* ------------------------------------------------------------ chart */
+
+.cl-chart {
+  max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+  padding-right: 2px; scrollbar-width: thin;
+}
+.cl-bar-row { display: grid; grid-template-columns: 34px repeat(4, 1fr); gap: 4px; align-items: stretch; }
+.cl-bar-time { color: var(--faint); font-size: 10px; font-variant-numeric: tabular-nums; align-self: center; }
+.cl-bar {
+  min-height: 34px; border-radius: 7px; background: var(--surface); border: 1px solid var(--border);
+  display: flex; gap: 6px; align-items: center; padding: 0 7px; font-weight: 700; font-size: 14px; overflow: hidden;
+}
+.cl-bar.cl-seekable { cursor: pointer; }
+.cl-bar.cl-seekable:hover { border-color: var(--surface-3); background: var(--surface-2); }
+.cl-bar.is-now { border-color: var(--accent); background: var(--accent-soft); }
+.cl-bar-chord.is-current { color: var(--accent); }
+
+/* ------------------------------------------------------------ controls */
+
+.cl-controls { display: flex; flex-direction: column; gap: 6px; }
+.cl-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.cl-lbl { color: var(--muted); font-size: 11px; margin-right: 2px; }
+
+.cl-seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
+.cl-seg button { border: 0; background: transparent; padding: 4px 9px; border-radius: 6px; color: var(--muted); font-weight: 600; }
+.cl-seg button.is-on { background: var(--surface-3); color: var(--text); }
+.cl-seg button:hover:not(.is-on) { color: var(--text); }
+
+.cl-stepper {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2px 4px 2px 8px;
+}
+.cl-stepper b { min-width: 30px; text-align: center; font-variant-numeric: tabular-nums; }
+.cl-stepper button {
+  width: 24px; height: 24px; border-radius: 6px; border: 0; background: var(--surface-2); font-size: 15px; line-height: 1;
+}
+.cl-stepper button:hover { background: var(--surface-3); }
+.cl-offset b { min-width: 40px; }
+
+.cl-capo { display: inline-flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2px 4px 2px 8px; }
+.cl-capo select { background: var(--surface-2); color: var(--text); border: 0; border-radius: 6px; padding: 3px 4px; font: inherit; }
+
+.cl-chip, .cl-toggle {
+  border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 4px 10px; font-weight: 600; color: var(--muted);
+}
+.cl-chip { border-color: color-mix(in srgb, var(--accent) 50%, var(--border)); color: var(--accent); }
+.cl-toggle.is-on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+/* ------------------------------------------------------------ palette */
+
+.cl-section-title { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.cl-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; }
+.cl-palette.is-piano { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.cl-pal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 6px 4px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.cl-pal:hover { border-color: var(--surface-3); background: var(--surface-2); }
+.cl-pal-name { font-weight: 800; font-size: 14px; }
+
+/* ------------------------------------------------------------ diagrams */
+
+.cl-fb-fret { stroke: #4a5060; stroke-width: 1; }
+.cl-fb-string { stroke: #7d8494; stroke-width: 1; }
+.cl-fb-nut { fill: #cfd3dc; }
+.cl-fb-dot { fill: var(--accent); }
+.cl-next .cl-fb-dot { fill: var(--next); }
+.cl-fb-open { fill: none; stroke: #cfd3dc; stroke-width: 1.5; }
+.cl-fb-mute { stroke: var(--faint); stroke-width: 1.6; stroke-linecap: round; }
+.cl-fb-label, .cl-fb-fretno { fill: var(--faint); font-size: 9px; font-family: inherit; }
+.cl-fb-fretno { font-size: 10px; fill: var(--muted); }
+
+.cl-key-w { fill: #e9ebf0; stroke: #3a3f4b; stroke-width: 1; }
+.cl-key-b { fill: #20232b; stroke: #0d0e12; stroke-width: 1; }
+.cl-key-on { fill: var(--accent); }
+.cl-key-root { fill: #ffcf6e; }
+.cl-next .cl-key-on { fill: var(--next); }
+.cl-next .cl-key-root { fill: #b9e0ff; }
+.cl-nc { color: var(--faint); font-size: 12px; }

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ChordLane</title>
+  <link rel="stylesheet" href="../shared/view.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body class="cl-theme">
+  <header class="pp-head">
+    <span id="logo"></span>
+    <b>ChordLane</b>
+    <span class="pp-server" id="server"><i class="dot"></i><span>Checking server…</span></span>
+  </header>
+
+  <section class="pp-card" id="offline" hidden>
+    <p><b>The server isn't running.</b> Start it by double-clicking <code>start-server.bat</code> in the ChordLane folder.</p>
+  </section>
+
+  <section class="pp-card">
+    <h2>This tab</h2>
+    <p id="tab-info" class="pp-dim">Open a YouTube, YouTube Music, Spotify or SoundCloud tab.</p>
+    <button type="button" class="cl-btn" id="toggle" hidden>Show chords panel</button>
+  </section>
+
+  <section class="pp-card">
+    <h2>Spotify app</h2>
+    <p id="desktop-info" class="pp-dim">Follows the song playing in the Spotify desktop app.</p>
+    <button type="button" class="cl-btn cl-btn-primary" id="companion">Open chords window</button>
+  </section>
+
+  <section class="pp-card">
+    <h2>Settings</h2>
+    <label class="pp-field">
+      <span>Get chords on YouTube automatically</span>
+      <select id="auto">
+        <option value="music">For music videos</option>
+        <option value="always">For every video</option>
+        <option value="never">Ask each time</option>
+      </select>
+    </label>
+    <details>
+      <summary>Server address</summary>
+      <div class="pp-server-row">
+        <input id="server-url" type="url" spellcheck="false" placeholder="http://127.0.0.1:8765">
+        <button type="button" class="cl-btn" id="save-url">Save</button>
+      </div>
+      <p class="pp-dim pp-small" id="url-note"></p>
+    </details>
+    <p class="pp-dim pp-small">Shortcut: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> shows or hides the panel.</p>
+  </section>
+
+  <script src="../shared/ui.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

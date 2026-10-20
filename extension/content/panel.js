@@ -2,13 +2,13 @@
 // the local server (analyzing it first if needed) and runs the live view in
 // step with the page's player.
 (() => {
-  if (window.top !== window || window.__chordlanePanel) return;
-  window.__chordlanePanel = true;
+  if (window.top !== window || window.__chordcuePanel) return;
+  window.__chordcuePanel = true;
 
-  const CL = globalThis.CL;
-  const site = CL.sites.current();
+  const CC = globalThis.CC;
+  const site = CC.sites.current();
   if (!site) return;
-  const clock = CL.sites.clockFor(site);
+  const clock = CC.sites.clockFor(site);
 
   const GLOBAL_KEYS = ["instrument", "notation", "simple", "view"];
   const SONG_KEYS = ["transpose", "capo", "offset"];
@@ -58,35 +58,35 @@
 
   // ------------------------------------------------------------ DOM
 
-  const host = document.createElement("chordlane-panel");
+  const host = document.createElement("chordcue-panel");
   host.style.cssText = "all: initial; position: fixed; z-index: 2147483000; top: 0; left: 0; width: 0; height: 0;";
   const shadow = host.attachShadow({ mode: "open" });
   shadow.innerHTML = `
     <link rel="stylesheet" href="${chrome.runtime.getURL("shared/view.css")}">
     <link rel="stylesheet" href="${chrome.runtime.getURL("content/panel.css")}">
-    <section class="cl-theme cl-panel" hidden aria-label="ChordLane chords">
-      <header class="cl-head">
-        <span class="cl-logo" aria-hidden="true">${CL.ui.logo}</span>
-        <span class="cl-song"><b class="cl-title"></b><span class="cl-artist"></span></span>
-        <button type="button" class="cl-hbtn" data-act="min" title="Shrink to a pill" aria-label="Minimize">${CL.ui.icon("min")}</button>
-        <button type="button" class="cl-hbtn" data-act="close" title="Hide on this page (Alt+Shift+C brings it back)" aria-label="Close">${CL.ui.icon("close")}</button>
+    <section class="cc-theme cc-panel" hidden aria-label="ChordCue chords">
+      <header class="cc-head">
+        <span class="cc-logo" aria-hidden="true">${CC.ui.logo}</span>
+        <span class="cc-song"><b class="cc-title"></b><span class="cc-artist"></span></span>
+        <button type="button" class="cc-hbtn" data-act="min" title="Shrink to a pill" aria-label="Minimize">${CC.ui.icon("min")}</button>
+        <button type="button" class="cc-hbtn" data-act="close" title="Hide on this page (Alt+Shift+C brings it back)" aria-label="Close">${CC.ui.icon("close")}</button>
       </header>
-      <div class="cl-body">
-        <div class="cl-status" hidden></div>
-        <div class="cl-viewhost" hidden></div>
+      <div class="cc-body">
+        <div class="cc-status" hidden></div>
+        <div class="cc-viewhost" hidden></div>
       </div>
     </section>
-    <button type="button" class="cl-theme cl-pill" hidden title="Open ChordLane">
-      <span class="cl-logo" aria-hidden="true">${CL.ui.logo}</span>
-      <b class="cl-pill-now">—</b><span class="cl-pill-arrow">›</span><span class="cl-pill-next"></span>
+    <button type="button" class="cc-theme cc-pill" hidden title="Open ChordCue">
+      <span class="cc-logo" aria-hidden="true">${CC.ui.logo}</span>
+      <b class="cc-pill-now">—</b><span class="cc-pill-arrow">›</span><span class="cc-pill-next"></span>
     </button>`;
 
   const $ = (sel) => shadow.querySelector(sel);
-  const panel = $(".cl-panel");
-  const pill = $(".cl-pill");
-  const statusEl = $(".cl-status");
-  const viewHost = $(".cl-viewhost");
-  const view = new CL.ChordView(viewHost, {
+  const panel = $(".cc-panel");
+  const pill = $(".cc-pill");
+  const statusEl = $(".cc-status");
+  const viewHost = $(".cc-viewhost");
+  const view = new CC.ChordView(viewHost, {
     onSeek: site.canSeek ? (t) => clock.seek(t) : null,
     onSettings: (patch) => saveSettings(patch),
   });
@@ -111,7 +111,7 @@
   }
   window.addEventListener("resize", placePanel);
 
-  $(".cl-head").addEventListener("pointerdown", (e) => {
+  $(".cc-head").addEventListener("pointerdown", (e) => {
     if (e.target.closest("button")) return;
     const head = e.currentTarget;
     const m = panel.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\)/);
@@ -158,8 +158,8 @@
     if (!show) return;
 
     const info = state.info;
-    $(".cl-title").textContent = (state.sheet && state.sheet.title) || info.title || "Unknown song";
-    $(".cl-artist").textContent = (state.sheet && state.sheet.artist) || info.artist || "";
+    $(".cc-title").textContent = (state.sheet && state.sheet.title) || info.title || "Unknown song";
+    $(".cc-artist").textContent = (state.sheet && state.sheet.artist) || info.artist || "";
 
     const ready = state.status === "ready";
     viewHost.hidden = !ready;
@@ -174,31 +174,31 @@
   function statusHtml() {
     switch (state.status) {
       case "offline":
-        return `<div class="cl-msg">
-          <p><b>The ChordLane server isn't running.</b></p>
+        return `<div class="cc-msg">
+          <p><b>The ChordCue server isn't running.</b></p>
           <p>Start it by double-clicking <code>start-server.bat</code> in the project folder, then retry.</p>
-          <button type="button" class="cl-btn" data-act="retry">Retry</button></div>`;
+          <button type="button" class="cc-btn" data-act="retry">Retry</button></div>`;
       case "ask":
-        return `<div class="cl-msg">
+        return `<div class="cc-msg">
           <p>Want the chords for this video?</p>
-          <p class="cl-dim">Takes about 20 seconds the first time; after that it opens instantly.</p>
-          <button type="button" class="cl-btn cl-btn-primary" data-act="analyze">Get chords</button></div>`;
+          <p class="cc-dim">Takes about 20 seconds the first time; after that it opens instantly.</p>
+          <button type="button" class="cc-btn cc-btn-primary" data-act="analyze">Get chords</button></div>`;
       case "analyzing": {
         const job = state.job || {};
         const pct = Math.round((job.progress || 0) * 100);
         const queue = job.queue_position > 1 ? ` · ${job.queue_position - 1} ahead in line` : "";
-        return `<div class="cl-msg">
-          <p><b>${esc(job.message || "Starting")}</b><span class="cl-dim">${queue}</span></p>
-          <div class="cl-progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
-          <p class="cl-dim">Listening for the chords. First songs take longer while models load.</p></div>`;
+        return `<div class="cc-msg">
+          <p><b>${esc(job.message || "Starting")}</b><span class="cc-dim">${queue}</span></p>
+          <div class="cc-progress" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
+          <p class="cc-dim">Listening for the chords. First songs take longer while models load.</p></div>`;
       }
       case "error":
-        return `<div class="cl-msg">
+        return `<div class="cc-msg">
           <p><b>Couldn't get the chords.</b></p>
-          <p class="cl-dim">${esc(state.error || "Unknown error")}</p>
-          <button type="button" class="cl-btn" data-act="retry">Try again</button></div>`;
+          <p class="cc-dim">${esc(state.error || "Unknown error")}</p>
+          <button type="button" class="cc-btn" data-act="retry">Try again</button></div>`;
       default:
-        return `<div class="cl-msg"><p class="cl-dim">Looking up this song…</p></div>`;
+        return `<div class="cc-msg"><p class="cc-dim">Looking up this song…</p></div>`;
     }
   }
 
@@ -343,10 +343,10 @@
     while (i >= 0 && tl[i].start > t) i--;
     let n = i + 1;
     while (n < tl.length && !tl[n].chord) n++;
-    const flats = CL.theory.useFlats(sheet.key, st);
-    const name = (c) => CL.theory.chordName(CL.theory.shape(c, st), flats);
-    $(".cl-pill-now").textContent = i >= 0 && tl[i].chord ? name(tl[i].chord) : "—";
-    $(".cl-pill-next").textContent = n < tl.length ? name(tl[n].chord) : "";
+    const flats = CC.theory.useFlats(sheet.key, st);
+    const name = (c) => CC.theory.chordName(CC.theory.shape(c, st), flats);
+    $(".cc-pill-now").textContent = i >= 0 && tl[i].chord ? name(tl[i].chord) : "—";
+    $(".cc-pill-next").textContent = n < tl.length ? name(tl[n].chord) : "";
   }
 
   // Toolbar popup / keyboard shortcut.

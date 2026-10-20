@@ -4,10 +4,10 @@
 // extension's content script and obeys seek requests. It reads only playback
 // state and track metadata.
 (() => {
-  if (window.__chordlaneHook) return;
-  window.__chordlaneHook = true;
+  if (window.__chordcueHook) return;
+  window.__chordcueHook = true;
 
-  const TAG = "__chordlane__";
+  const TAG = "__chordcue__";
   const tracked = new Set();
   const isYouTube = /(^|\.)youtube\.com$/.test(location.hostname);
 

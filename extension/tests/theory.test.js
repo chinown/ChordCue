@@ -2,7 +2,7 @@
 import "../shared/theory.js";
 import "../shared/diagrams.js";
 
-const { theory: T, diagrams: D } = globalThis.CL;
+const { theory: T, diagrams: D } = globalThis.CC;
 let failed = 0;
 function eq(actual, expected, label) {
   const a = JSON.stringify(actual), e = JSON.stringify(expected);

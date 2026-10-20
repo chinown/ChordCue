@@ -1,13 +1,13 @@
 // The play-along view: current + next chord cards, a sliding chord lane, a
 // bar chart of the whole song, and the transpose/capo/instrument controls.
 //
-//   const view = new CL.ChordView(element, { onSeek, onSettings });
+//   const view = new CC.ChordView(element, { onSeek, onSettings });
 //   view.setSheet(sheet, settings);   // settings: see DEFAULTS
 //   view.setTime(seconds);            // call every animation frame
 (() => {
-  const CL = (globalThis.CL = globalThis.CL || {});
-  const T = CL.theory;
-  const D = CL.diagrams;
+  const CC = (globalThis.CC = globalThis.CC || {});
+  const T = CC.theory;
+  const D = CC.diagrams;
 
   const DEFAULTS = {
     instrument: "guitar", // guitar | ukulele | piano
@@ -45,7 +45,7 @@
       this.barIdx = -2;
       this.variants = {};
       this.lastUserScroll = 0;
-      this.el.classList.add("cl-view");
+      this.el.classList.add("cc-view");
       this.el.addEventListener("click", (e) => this._onClick(e));
       this.el.addEventListener("change", (e) => this._onChange(e));
     }
@@ -84,7 +84,7 @@
 
     _nameHtml(chord) {
       const p = T.chordParts(this._shape(chord), this._flats());
-      return `<span class="cl-root">${p.root}</span><span class="cl-suffix">${p.suffix}</span>`;
+      return `<span class="cc-root">${p.root}</span><span class="cc-suffix">${p.suffix}</span>`;
     }
 
     _computeBars() {
@@ -145,66 +145,66 @@
       const suggestion = T.suggestCapo(this.timeline, st.transpose);
       const distinct = this._distinct();
       const changes = this.timeline.filter((x) => x.chord).length;
-      const seekable = this.onSeek ? " cl-seekable" : "";
+      const seekable = this.onSeek ? " cc-seekable" : "";
 
       const seg = (name, value, options) =>
-        `<div class="cl-seg" role="radiogroup">${options.map(([v, label]) =>
+        `<div class="cc-seg" role="radiogroup">${options.map(([v, label]) =>
           `<button type="button" data-set="${name}" data-value="${v}" class="${String(st[name]) === String(v) ? "is-on" : ""}" aria-pressed="${String(st[name]) === String(v)}">${label}</button>`).join("")}</div>`;
 
       this.el.innerHTML = `
-        <div class="cl-meta">
+        <div class="cc-meta">
           <span>Key <b>${soundingKey}</b>${st.capo ? ` · capo ${st.capo} (${shapeKey} shapes)` : ""}</span>
           <span>${s.bpm ? Math.round(s.bpm) + " BPM · " : ""}${distinct.length} chords · ${changes} changes</span>
         </div>
         ${st.view === "live" ? this._liveHtml(seekable) : this._chartHtml(seekable)}
-        <div class="cl-controls">
-          <div class="cl-row">
+        <div class="cc-controls">
+          <div class="cc-row">
             ${seg("view", st.view, [["live", "Live"], ["chart", "Chart"]])}
             ${seg("instrument", st.instrument, [["guitar", "Guitar"], ["ukulele", "Uke"], ["piano", "Piano"]])}
           </div>
-          <div class="cl-row">
-            <div class="cl-stepper" title="Transpose (semitones)">
-              <span class="cl-lbl">Transpose</span>
+          <div class="cc-row">
+            <div class="cc-stepper" title="Transpose (semitones)">
+              <span class="cc-lbl">Transpose</span>
               <button type="button" data-act="transpose" data-d="-1" aria-label="Transpose down">−</button>
               <b>${st.transpose > 0 ? "+" : ""}${st.transpose}</b>
               <button type="button" data-act="transpose" data-d="1" aria-label="Transpose up">+</button>
             </div>
-            <label class="cl-capo" title="Capo fret">
-              <span class="cl-lbl">Capo</span>
+            <label class="cc-capo" title="Capo fret">
+              <span class="cc-lbl">Capo</span>
               <select data-set="capo">${Array.from({ length: 10 }, (_, i) => `<option value="${i}" ${i === st.capo ? "selected" : ""}>${i === 0 ? "None" : i}</option>`).join("")}</select>
             </label>
-            ${suggestion !== st.capo && st.instrument === "guitar" ? `<button type="button" class="cl-chip" data-set="capo" data-value="${suggestion}" title="Easiest shapes for this song">Try capo ${suggestion || "off"}</button>` : ""}
+            ${suggestion !== st.capo && st.instrument === "guitar" ? `<button type="button" class="cc-chip" data-set="capo" data-value="${suggestion}" title="Easiest shapes for this song">Try capo ${suggestion || "off"}</button>` : ""}
           </div>
-          <div class="cl-row">
+          <div class="cc-row">
             ${seg("notation", st.notation, [["auto", "Auto"], ["sharp", "♯"], ["flat", "♭"]])}
-            <button type="button" class="cl-toggle ${st.simple ? "is-on" : ""}" data-act="simple" aria-pressed="${st.simple}" title="Show plain major/minor chords">Simple chords</button>
-            <div class="cl-stepper cl-offset" title="Shift the chords if they run early or late">
-              <span class="cl-lbl">Sync</span>
+            <button type="button" class="cc-toggle ${st.simple ? "is-on" : ""}" data-act="simple" aria-pressed="${st.simple}" title="Show plain major/minor chords">Simple chords</button>
+            <div class="cc-stepper cc-offset" title="Shift the chords if they run early or late">
+              <span class="cc-lbl">Sync</span>
               <button type="button" data-act="offset" data-d="-0.1" aria-label="Chords earlier">−</button>
               <b>${st.offset > 0 ? "+" : ""}${st.offset.toFixed(1)}s</b>
               <button type="button" data-act="offset" data-d="0.1" aria-label="Chords later">+</button>
             </div>
           </div>
         </div>
-        <div class="cl-palette-wrap">
-          <div class="cl-section-title">Chords in this song</div>
-          <div class="cl-palette${st.instrument === "piano" ? " is-piano" : ""}">${distinct.sort((a, b) => b.time - a.time).map(({ chord }) => {
+        <div class="cc-palette-wrap">
+          <div class="cc-section-title">Chords in this song</div>
+          <div class="cc-palette${st.instrument === "piano" ? " is-piano" : ""}">${distinct.sort((a, b) => b.time - a.time).map(({ chord }) => {
             const sh = this._shape(chord);
             const k = `${sh.root}:${sh.q}`;
-            return `<button type="button" class="cl-pal" data-variant="${k}" title="Click for another shape">
-              <span class="cl-pal-name">${this._nameHtml(chord)}</span>
+            return `<button type="button" class="cc-pal" data-variant="${k}" title="Click for another shape">
+              <span class="cc-pal-name">${this._nameHtml(chord)}</span>
               ${D.diagram(sh, st.instrument, { variant: this.variants[k] || 0, size: 0.72 })}
             </button>`;
           }).join("")}</div>
         </div>`;
 
       this.refs = {
-        now: this.el.querySelector(".cl-now"),
-        next: this.el.querySelector(".cl-next"),
-        track: this.el.querySelector(".cl-lane-track"),
-        lane: this.el.querySelector(".cl-lane"),
-        chart: this.el.querySelector(".cl-chart"),
-        clock: this.el.querySelector(".cl-clock"),
+        now: this.el.querySelector(".cc-now"),
+        next: this.el.querySelector(".cc-next"),
+        track: this.el.querySelector(".cc-lane-track"),
+        lane: this.el.querySelector(".cc-lane"),
+        chart: this.el.querySelector(".cc-chart"),
+        clock: this.el.querySelector(".cc-clock"),
       };
       if (this.refs.chart) {
         this.refs.chart.addEventListener("wheel", () => (this.lastUserScroll = performance.now()), { passive: true });
@@ -217,28 +217,28 @@
       const blocks = this.timeline.map((seg, i) => {
         const w = Math.max(2, (seg.end - seg.start) * LANE_PX_PER_S - 2);
         const x = seg.start * LANE_PX_PER_S;
-        return `<div class="cl-block ${seg.chord ? "" : "cl-block-nc"}" data-ci="${i}" data-t="${seg.start}" style="left:${x}px;width:${w}px">${seg.chord && w > 18 ? this._nameHtml(seg.chord) : ""}</div>`;
+        return `<div class="cc-block ${seg.chord ? "" : "cc-block-nc"}" data-ci="${i}" data-t="${seg.start}" style="left:${x}px;width:${w}px">${seg.chord && w > 18 ? this._nameHtml(seg.chord) : ""}</div>`;
       }).join("");
-      const ticks = this.bars.map((b) => `<i class="cl-tick" style="left:${b.start * LANE_PX_PER_S}px"></i>`).join("");
+      const ticks = this.bars.map((b) => `<i class="cc-tick" style="left:${b.start * LANE_PX_PER_S}px"></i>`).join("");
       return `
-        <div class="cl-live">
-          <div class="cl-cards">
-            <div class="cl-card cl-now">
-              <div class="cl-card-head"><span>Now</span><span class="cl-clock"></span></div>
-              <div class="cl-name"></div>
-              <div class="cl-diagram"></div>
-              <div class="cl-beats">${"<i></i>".repeat(per)}</div>
+        <div class="cc-live">
+          <div class="cc-cards">
+            <div class="cc-card cc-now">
+              <div class="cc-card-head"><span>Now</span><span class="cc-clock"></span></div>
+              <div class="cc-name"></div>
+              <div class="cc-diagram"></div>
+              <div class="cc-beats">${"<i></i>".repeat(per)}</div>
             </div>
-            <div class="cl-card cl-next">
-              <div class="cl-card-head"><span>Next</span><span class="cl-count"></span></div>
-              <div class="cl-name"></div>
-              <div class="cl-diagram"></div>
-              <div class="cl-countbar"><i></i></div>
+            <div class="cc-card cc-next">
+              <div class="cc-card-head"><span>Next</span><span class="cc-count"></span></div>
+              <div class="cc-name"></div>
+              <div class="cc-diagram"></div>
+              <div class="cc-countbar"><i></i></div>
             </div>
           </div>
-          <div class="cl-lane${seekable}" title="${seekable ? "Click to jump" : ""}">
-            <div class="cl-lane-track">${ticks}${blocks}</div>
-            <div class="cl-playhead"></div>
+          <div class="cc-lane${seekable}" title="${seekable ? "Click to jump" : ""}">
+            <div class="cc-lane-track">${ticks}${blocks}</div>
+            <div class="cc-playhead"></div>
           </div>
         </div>`;
     }
@@ -250,13 +250,13 @@
         const cells = this.bars.slice(i, i + BARS_PER_ROW).map((b, j) => {
           const names = b.items
             .filter((k, n) => tl[k].chord || b.items.length === 1)
-            .map((k) => `<span class="cl-bar-chord" data-ci="${k}">${tl[k].chord ? this._nameHtml(tl[k].chord) : "N.C."}</span>`)
+            .map((k) => `<span class="cc-bar-chord" data-ci="${k}">${tl[k].chord ? this._nameHtml(tl[k].chord) : "N.C."}</span>`)
             .join("");
-          return `<div class="cl-bar${seekable}" data-bar="${i + j}" data-t="${b.start}">${names}</div>`;
+          return `<div class="cc-bar${seekable}" data-bar="${i + j}" data-t="${b.start}">${names}</div>`;
         }).join("");
-        rows.push(`<div class="cl-bar-row"><span class="cl-bar-time">${fmtTime(this.bars[i].start)}</span>${cells}</div>`);
+        rows.push(`<div class="cc-bar-row"><span class="cc-bar-time">${fmtTime(this.bars[i].start)}</span>${cells}</div>`);
       }
-      return `<div class="cl-chart">${rows.join("")}</div>`;
+      return `<div class="cc-chart">${rows.join("")}</div>`;
     }
 
     // ------------------------------------------------------------ time updates
@@ -291,14 +291,14 @@
       this.nextIdx = nxt < tl.length ? nxt : -1;
       if (this.refs.now) {
         const chord = curSeg && curSeg.chord;
-        this.refs.now.querySelector(".cl-name").innerHTML = chord ? this._nameHtml(chord) : (cur < 0 ? "—" : "N.C.");
-        this.refs.now.querySelector(".cl-diagram").innerHTML = chord ? this._diagramFor(chord, 1) : "";
+        this.refs.now.querySelector(".cc-name").innerHTML = chord ? this._nameHtml(chord) : (cur < 0 ? "—" : "N.C.");
+        this.refs.now.querySelector(".cc-diagram").innerHTML = chord ? this._diagramFor(chord, 1) : "";
         this.refs.now.classList.toggle("is-empty", !chord);
       }
       if (this.refs.next) {
         const n = this.nextIdx >= 0 ? tl[this.nextIdx].chord : null;
-        this.refs.next.querySelector(".cl-name").innerHTML = n ? this._nameHtml(n) : "End";
-        this.refs.next.querySelector(".cl-diagram").innerHTML = n ? this._diagramFor(n, 0.82) : "";
+        this.refs.next.querySelector(".cc-name").innerHTML = n ? this._nameHtml(n) : "End";
+        this.refs.next.querySelector(".cc-diagram").innerHTML = n ? this._diagramFor(n, 0.82) : "";
       }
       this.el.querySelectorAll(".is-current").forEach((e) => e.classList.remove("is-current"));
       if (cur >= 0) this.el.querySelectorAll(`[data-ci="${cur}"]`).forEach((e) => e.classList.add("is-current"));
@@ -315,8 +315,8 @@
       if (this.refs.next) {
         const tl = this.timeline;
         const n = this.nextIdx;
-        const count = this.refs.next.querySelector(".cl-count");
-        const bar = this.refs.next.querySelector(".cl-countbar i");
+        const count = this.refs.next.querySelector(".cc-count");
+        const bar = this.refs.next.querySelector(".cc-countbar i");
         if (n >= 0) {
           const target = tl[n].start;
           // Beats from now until the change (the change's own beat included).
@@ -334,7 +334,7 @@
       }
       if (bi === this.beatIdx || !this.refs.now) return;
       this.beatIdx = bi;
-      const dots = this.refs.now.querySelectorAll(".cl-beats i");
+      const dots = this.refs.now.querySelectorAll(".cc-beats i");
       if (!dots.length) return;
       const db = this.sheet.downbeats || [];
       let pos = -1;
@@ -355,7 +355,7 @@
       if (bi === this.barIdx) return;
       this.barIdx = bi;
       const chart = this.refs.chart;
-      chart.querySelectorAll(".cl-bar.is-now").forEach((e) => e.classList.remove("is-now"));
+      chart.querySelectorAll(".cc-bar.is-now").forEach((e) => e.classList.remove("is-now"));
       const cell = chart.querySelector(`[data-bar="${bi}"]`);
       if (!cell) return;
       cell.classList.add("is-now");
@@ -369,7 +369,7 @@
     // ------------------------------------------------------------ events
 
     _onClick(e) {
-      const lane = e.target.closest(".cl-lane");
+      const lane = e.target.closest(".cc-lane");
       if (lane && this.onSeek) {
         // Anywhere on the lane: jump to the time under the pointer.
         const rect = lane.getBoundingClientRect();
@@ -423,5 +423,5 @@
   }
 
   ChordView.DEFAULTS = DEFAULTS;
-  CL.ChordView = ChordView;
+  CC.ChordView = ChordView;
 })();

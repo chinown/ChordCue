@@ -22,13 +22,13 @@ body {
 .pp-small { font-size: 11px; }
 code, kbd { background: var(--surface-2); border-radius: 4px; padding: 1px 5px; font-size: 12px; font-family: inherit; }
 
-.cl-btn {
+.cc-btn {
   border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
   border-radius: 9px; padding: 7px 14px; font-weight: 600;
 }
-.cl-btn:hover { background: var(--surface-3); }
-.cl-btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.cl-btn-primary:hover { background: #ffb840; }
+.cc-btn:hover { background: var(--surface-3); }
+.cc-btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.cc-btn-primary:hover { background: #ffb840; }
 
 .pp-field { display: flex; flex-direction: column; gap: 4px; width: 100%; }
 .pp-field select, .pp-server-row input {

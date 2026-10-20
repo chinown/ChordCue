@@ -1,4 +1,4 @@
-"""Local HTTP API for the ChordLane browser extension.
+"""Local HTTP API for the ChordCue browser extension.
 
     GET  /api/health
     POST /api/lookup     {"url"} or {"title","artist","duration"} -> {"song_id"} if already analyzed
@@ -25,9 +25,9 @@ from . import __version__, config, index, nowplaying, pipeline, sources
 from .jobs import JobManager
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-log = logging.getLogger("chordlane")
+log = logging.getLogger("chordcue")
 
-app = FastAPI(title="ChordLane")
+app = FastAPI(title="ChordCue")
 jobs = JobManager()
 
 _SONG_ID = re.compile(r"^(yt|sc)-[\w-]{1,64}$")
@@ -154,12 +154,12 @@ def main():
 
     import uvicorn
 
-    parser = argparse.ArgumentParser(description="Run the ChordLane analysis server")
+    parser = argparse.ArgumentParser(description="Run the ChordCue analysis server")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
     pipeline.ensure_models()
-    log.info("ChordLane server on http://%s:%d (device: %s)", args.host, args.port, config.device())
+    log.info("ChordCue server on http://%s:%d (device: %s)", args.host, args.port, config.device())
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
 
 

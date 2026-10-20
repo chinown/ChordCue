@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const DEFAULT_SERVER = "http://127.0.0.1:8765";
 
-$("logo").innerHTML = CL.ui.logo;
+$("logo").innerHTML = CC.ui.logo;
 
 const api = (method, path, body) => chrome.runtime.sendMessage({ type: "api", method, path, body });
 

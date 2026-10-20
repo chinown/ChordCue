@@ -7,8 +7,8 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from chordlane import index, sources, theory  # noqa: E402
-from chordlane.chords import recognize  # noqa: E402
+from chordcue import index, sources, theory  # noqa: E402
+from chordcue.chords import recognize  # noqa: E402
 
 
 def test_parse_links():

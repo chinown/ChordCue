@@ -6,8 +6,8 @@
 // whether to analyze without asking. Playback comes from media-hook.js,
 // which posts the page player's state about four times a second.
 (() => {
-  const CL = (globalThis.CL = globalThis.CL || {});
-  const TAG = "__chordlane__";
+  const CC = (globalThis.CC = globalThis.CC || {});
+  const TAG = "__chordcue__";
 
   // ------------------------------------------------------------ clock
 
@@ -197,7 +197,7 @@
 
   const ALL = [youtube, ytmusic, spotify, soundcloud];
 
-  CL.sites = {
+  CC.sites = {
     current: () => ALL.find((s) => s.matches()) || null,
     clockFor(site) {
       if (site.id !== "spotify") return clock;

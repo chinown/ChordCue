@@ -1,6 +1,6 @@
 // Small shared UI pieces: the logo mark and header icons.
 (() => {
-  const CL = (globalThis.CL = globalThis.CL || {});
+  const CC = (globalThis.CC = globalThis.CC || {});
 
   // Three chord "lanes" crossed by a playhead.
   const logo = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -20,5 +20,5 @@
     return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">${ICONS[name]}</svg>`;
   }
 
-  CL.ui = { logo, icon };
+  CC.ui = { logo, icon };
 })();

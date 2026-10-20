@@ -1,7 +1,7 @@
 // Chord spelling, transposition, capo and simplification.
 // A chord is {root: 0-11 (0 = C), q: quality}; null means no chord.
 (() => {
-  const CL = (globalThis.CL = globalThis.CL || {});
+  const CC = (globalThis.CC = globalThis.CC || {});
 
   const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
   const FLAT = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
@@ -110,7 +110,7 @@
     return best;
   }
 
-  CL.theory = {
+  CC.theory = {
     INTERVALS, mod12, keyUsesFlats, noteName, simplify, shape, chordName, chordParts,
     notesOf, keyName, useFlats, suggestCapo,
   };

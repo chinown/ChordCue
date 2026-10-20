@@ -1,4 +1,4 @@
-# ChordLane
+# ChordCue
 
 A browser extension that shows the chords of whatever you're playing, in time with the music. It shows the current chord and its diagram, the next chord counted in by beats, a lane of upcoming chords, and a bar chart of the whole song. You can transpose, set a capo, and switch between guitar, ukulele and piano diagrams.
 
@@ -8,7 +8,7 @@ The chord recognition runs on your own PC: a small Python server listens on `127
 
 ```
 extension/        the browser extension (Manifest V3, no build step)
-chordlane/        the analysis server (FastAPI)
+chordcue/        the analysis server (FastAPI)
 tools/            icon generator
 tests/            backend tests (extension tests live in extension/tests)
 ```
@@ -23,7 +23,7 @@ You need Python 3.12, [ffmpeg](https://ffmpeg.org/) on your PATH, and ideally an
    - Open `brave://extensions` (or `chrome://extensions`, `edge://extensions`, `opera://extensions`).
    - Turn on **Developer mode**.
    - Click **Load unpacked** and pick the **`extension`** folder.
-   - Pin ChordLane to the toolbar.
+   - Pin ChordCue to the toolbar.
 
 ## Using it
 
@@ -47,16 +47,16 @@ Transpose, capo and sync are remembered per song. Instrument, view and notation 
 4. **Recognize chords** with [BTC](https://github.com/jayg996/BTC-ISMIR19), a transformer that knows 170 chord types. Its frame-by-frame guesses are averaged per beat and smoothed with a Viterbi pass, so chords change on beats (mostly on downbeats) instead of flickering. The key and a capo suggestion come from the recognized chords.
 5. The extension's background worker fetches the result, and the panel keeps it in sync with the page's own player.
 
-Results are cached in `data/songs/<id>/sheet.json`. The downloaded audio is deleted after analysis unless `CHORDLANE_KEEP_AUDIO=1` is set.
+Results are cached in `data/songs/<id>/sheet.json`. The downloaded audio is deleted after analysis unless `CHORDCUE_KEEP_AUDIO=1` is set.
 
 ### Server settings (environment variables)
 
 | Variable | Default | |
 |---|---|---|
-| `CHORDLANE_SEPARATE` | `auto` | `1`/`0` to force stem separation on or off (`auto` = only with CUDA) |
-| `CHORDLANE_DEVICE` | auto | `cuda` or `cpu` |
-| `CHORDLANE_DATA` | `./data` | where analyzed songs are stored |
-| `CHORDLANE_MAX_DURATION` | `900` | longest song accepted, in seconds |
+| `CHORDCUE_SEPARATE` | `auto` | `1`/`0` to force stem separation on or off (`auto` = only with CUDA) |
+| `CHORDCUE_DEVICE` | auto | `cuda` or `cpu` |
+| `CHORDCUE_DATA` | `./data` | where analyzed songs are stored |
+| `CHORDCUE_MAX_DURATION` | `900` | longest song accepted, in seconds |
 
 `start-server.bat --port 9000` changes the port. If you do, also set the address under **Settings → Server address** in the popup.
 
@@ -81,4 +81,4 @@ The extension test checks that every guitar and ukulele shape it can draw sounds
 
 ## Credits
 
-BTC chord model © 2019 Jonggwon Park (MIT; model code adapted in `chordlane/chords/btc_model.py`). Beat This! © CPJKU (MIT). Demucs © Meta (MIT). yt-dlp (Unlicense). Inspired by the play-along view of anychord.net.
+BTC chord model © 2019 Jonggwon Park (MIT; model code adapted in `chordcue/chords/btc_model.py`). Beat This! © CPJKU (MIT). Demucs © Meta (MIT). yt-dlp (Unlicense). Inspired by the play-along view of anychord.net.

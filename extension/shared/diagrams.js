@@ -1,7 +1,7 @@
 // Chord diagrams as SVG strings: guitar, ukulele and piano.
 (() => {
-  const CL = (globalThis.CL = globalThis.CL || {});
-  const { INTERVALS, mod12, notesOf } = CL.theory;
+  const CC = (globalThis.CC = globalThis.CC || {});
+  const { INTERVALS, mod12, notesOf } = CC.theory;
 
   // ---------------------------------------------------------------- guitar
 
@@ -125,30 +125,30 @@
     const x = (i) => left + i * gap;
     const y = (row) => top + row * fretH;
     const parts = [];
-    parts.push(`<svg class="cl-fb" viewBox="0 0 ${width} ${height}" width="${width * size}" height="${height * size}" role="img">`);
+    parts.push(`<svg class="cc-fb" viewBox="0 0 ${width} ${height}" width="${width * size}" height="${height * size}" role="img">`);
     // Nut or fret number.
     if (v.base === 1) {
-      parts.push(`<rect x="${x(0) - 1}" y="${top - 4}" width="${gap * (n - 1) + 2}" height="4" rx="1" class="cl-fb-nut"/>`);
+      parts.push(`<rect x="${x(0) - 1}" y="${top - 4}" width="${gap * (n - 1) + 2}" height="4" rx="1" class="cc-fb-nut"/>`);
     } else {
-      parts.push(`<text x="${x(0) - 7}" y="${y(0.5) + 4}" text-anchor="end" class="cl-fb-fretno">${v.base}</text>`);
+      parts.push(`<text x="${x(0) - 7}" y="${y(0.5) + 4}" text-anchor="end" class="cc-fb-fretno">${v.base}</text>`);
     }
-    for (let r = 0; r <= rows; r++) parts.push(`<line x1="${x(0)}" y1="${y(r)}" x2="${x(n - 1)}" y2="${y(r)}" class="cl-fb-fret"/>`);
-    for (let i = 0; i < n; i++) parts.push(`<line x1="${x(i)}" y1="${top}" x2="${x(i)}" y2="${y(rows)}" class="cl-fb-string"/>`);
+    for (let r = 0; r <= rows; r++) parts.push(`<line x1="${x(0)}" y1="${y(r)}" x2="${x(n - 1)}" y2="${y(r)}" class="cc-fb-fret"/>`);
+    for (let i = 0; i < n; i++) parts.push(`<line x1="${x(i)}" y1="${top}" x2="${x(i)}" y2="${y(rows)}" class="cc-fb-string"/>`);
     // Open / muted markers.
     v.frets.forEach((f, i) => {
-      if (f === 0) parts.push(`<circle cx="${x(i)}" cy="${top - 12}" r="4" class="cl-fb-open"/>`);
-      if (f < 0) parts.push(`<path d="M${x(i) - 4} ${top - 16}l8 8m0 -8l-8 8" class="cl-fb-mute"/>`);
+      if (f === 0) parts.push(`<circle cx="${x(i)}" cy="${top - 12}" r="4" class="cc-fb-open"/>`);
+      if (f < 0) parts.push(`<path d="M${x(i) - 4} ${top - 16}l8 8m0 -8l-8 8" class="cc-fb-mute"/>`);
     });
     if (v.barre) {
       const row = v.barre.fret - v.base + 0.5;
-      parts.push(`<rect x="${x(v.barre.from) - 6}" y="${y(row) - 6}" width="${x(v.barre.to) - x(v.barre.from) + 12}" height="12" rx="6" class="cl-fb-dot"/>`);
+      parts.push(`<rect x="${x(v.barre.from) - 6}" y="${y(row) - 6}" width="${x(v.barre.to) - x(v.barre.from) + 12}" height="12" rx="6" class="cc-fb-dot"/>`);
     }
     v.frets.forEach((f, i) => {
       if (f <= 0) return;
       if (v.barre && f === v.barre.fret && i >= v.barre.from && i <= v.barre.to) return;
-      parts.push(`<circle cx="${x(i)}" cy="${y(f - v.base + 0.5)}" r="6" class="cl-fb-dot"/>`);
+      parts.push(`<circle cx="${x(i)}" cy="${y(f - v.base + 0.5)}" r="6" class="cc-fb-dot"/>`);
     });
-    labels.forEach((l, i) => parts.push(`<text x="${x(i)}" y="${height - 6}" text-anchor="middle" class="cl-fb-label">${l}</text>`));
+    labels.forEach((l, i) => parts.push(`<text x="${x(i)}" y="${height - 6}" text-anchor="middle" class="cc-fb-label">${l}</text>`));
     parts.push("</svg>");
     return parts.join("");
   }
@@ -165,12 +165,12 @@
       for (const i of intervals) lit.add(chord.root + i);
     }
     const width = whiteW * 14 + 1;
-    const parts = [`<svg class="cl-piano" viewBox="0 0 ${width} ${whiteH + 2}" width="${width * size}" height="${(whiteH + 2) * size}" role="img">`];
+    const parts = [`<svg class="cc-piano" viewBox="0 0 ${width} ${whiteH + 2}" width="${width * size}" height="${(whiteH + 2) * size}" role="img">`];
     for (let o = 0; o < 2; o++) {
       WHITE.forEach((pc, k) => {
         const abs = o * 12 + pc;
         const on = lit.has(abs);
-        const cls = on ? (chord && abs === chord.root ? "cl-key-w cl-key-root" : "cl-key-w cl-key-on") : "cl-key-w";
+        const cls = on ? (chord && abs === chord.root ? "cc-key-w cc-key-root" : "cc-key-w cc-key-on") : "cc-key-w";
         parts.push(`<rect x="${(o * 7 + k) * whiteW + 0.5}" y="0.5" width="${whiteW}" height="${whiteH}" rx="2" class="${cls}"/>`);
       });
     }
@@ -178,25 +178,25 @@
       for (const [pc, after] of Object.entries(BLACK)) {
         const abs = o * 12 + Number(pc);
         const on = lit.has(abs);
-        const cls = on ? (chord && abs === chord.root ? "cl-key-b cl-key-root" : "cl-key-b cl-key-on") : "cl-key-b";
+        const cls = on ? (chord && abs === chord.root ? "cc-key-b cc-key-root" : "cc-key-b cc-key-on") : "cc-key-b";
         const xPos = (o * 7 + after + 1) * whiteW - blackW / 2 + 0.5;
         parts.push(`<rect x="${xPos}" y="0.5" width="${blackW}" height="${blackH}" rx="1.5" class="${cls}"/>`);
       }
     }
     parts.push("</svg>");
-    return notes.length ? parts.join("") : parts.join("").replace("cl-piano", "cl-piano cl-empty");
+    return notes.length ? parts.join("") : parts.join("").replace("cc-piano", "cc-piano cc-empty");
   }
 
   // One diagram for a chord on an instrument; `variant` cycles alternate shapes.
   function diagram(chord, instrument, { variant = 0, size = 1 } = {}) {
-    if (!chord) return `<div class="cl-nc">No chord</div>`;
+    if (!chord) return `<div class="cc-nc">No chord</div>`;
     if (instrument === "piano") return pianoSvg(chord, { size });
     if (instrument === "ukulele") {
       const vs = ukuleleVoicings(chord);
-      return vs.length ? fretboardSvg(vs[variant % vs.length], 4, ["G", "C", "E", "A"], { size }) : `<div class="cl-nc">?</div>`;
+      return vs.length ? fretboardSvg(vs[variant % vs.length], 4, ["G", "C", "E", "A"], { size }) : `<div class="cc-nc">?</div>`;
     }
     const vs = guitarVoicings(chord);
-    return vs.length ? fretboardSvg(vs[variant % vs.length], 6, ["E", "A", "D", "G", "B", "e"], { size }) : `<div class="cl-nc">?</div>`;
+    return vs.length ? fretboardSvg(vs[variant % vs.length], 6, ["E", "A", "D", "G", "B", "e"], { size }) : `<div class="cc-nc">?</div>`;
   }
 
   function variantCount(chord, instrument) {
@@ -204,5 +204,5 @@
     return (instrument === "ukulele" ? ukuleleVoicings(chord) : guitarVoicings(chord)).length || 1;
   }
 
-  CL.diagrams = { guitarVoicings, ukuleleVoicings, diagram, variantCount };
+  CC.diagrams = { guitarVoicings, ukuleleVoicings, diagram, variantCount };
 })();

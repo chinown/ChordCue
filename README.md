@@ -1,22 +1,23 @@
 # ChordCue
 
-**Live chords for whatever you're playing.** Open a song on YouTube, YouTube Music, Spotify or SoundCloud, and ChordCue shows the chord being played right now and counts you in to the next one. It stays in step with the music, so you can play along on guitar, ukulele or piano.
+**Live chords for whatever you're playing.** Play a song on YouTube, YouTube Music, Spotify or SoundCloud and click the ChordCue icon. A side panel opens next to the page, shows the chord being played right now, and counts you in to the next one. It stays in step with the music, so you can play along on guitar, ukulele or piano.
 
-![The ChordCue panel in three live views: guitar, piano transposed up two semitones, and ukulele](docs/screenshots/hero.png)
+![The ChordCue side panel in three live views: guitar, piano transposed up two semitones, and ukulele](docs/screenshots/hero.png)
 
 ## What it does
 
-- **Follows what's playing.** The panel detects the song in your tab and stays in sync with the page's own player: pause, seek or skip, and the chords follow. While an ad plays, the chords wait.
+- **One click, one panel.** Clicking the ChordCue icon opens the side panel, and it starts working straight away. Nothing appears on any page until you open it.
+- **Follows what's playing.** The panel picks up the song in your tab and stays in sync with the page's own player: pause, seek or skip, and the chords follow. While an ad plays, the chords wait.
 - **Shows the next chord before it arrives.** The **Next** card counts down the beats to the change, and a lane of upcoming chords slides past a playhead.
 - **Diagrams for three instruments.** Guitar (open and barre shapes), ukulele and piano, for all 14 chord types it recognizes in every key. Click a diagram to see another shape.
 - **Transpose and capo.** Move the song into a key that suits your voice, or set a capo and see which shapes to play. It also suggests the capo fret that gives the easiest open chords.
 - **Chart of the whole song.** Every bar with its chords. The current bar is highlighted, and clicking any bar jumps the song there.
-- **Spotify desktop app too.** A companion window follows the Spotify app on Windows and can seek it.
+- **Spotify desktop app too.** When no tab is playing a song, the same panel follows the Spotify app on Windows, and can seek it.
 - **Runs on your own PC.** A local server finds the chords with AI models on your GPU. A new song takes about 20 seconds, and after that it opens instantly.
 
-| Live view | Chart view | Minimized |
-|:---:|:---:|:---:|
-| <img src="docs/screenshots/panel-live.png" width="260" alt="Live view: the current chord F with its barre diagram, the next chord C in one beat, the chord lane, the controls, and every chord in the song"> | <img src="docs/screenshots/panel-chart.png" width="260" alt="Chart view: four bars per row with the chords in each bar and the current bar highlighted"> | <img src="docs/screenshots/pill.png" width="120" alt="Minimized pill showing the current chord C and the next chord G"> |
+| Live view | Chart view |
+|:---:|:---:|
+| <img src="docs/screenshots/panel-live.png" width="280" alt="Live view: the current chord F with its barre diagram, the next chord C in one beat, the chord lane, the controls, and every chord in the song"> | <img src="docs/screenshots/panel-chart.png" width="280" alt="Chart view: four bars per row with the chords in each bar and the current bar highlighted"> |
 
 It works in any Chromium browser: Brave, Chrome, Edge or Opera.
 
@@ -62,7 +63,7 @@ ChordCue isn't in any extension store. You download it from this page and run it
    - Open `brave://extensions` (or `chrome://extensions`, `edge://extensions`, `opera://extensions`).
    - Turn on **Developer mode**.
    - Click **Load unpacked** and pick the **`extension`** folder inside ChordCue.
-   - Pin ChordCue to the toolbar. Its popup shows a green "Server on" when everything is connected.
+   - Pin ChordCue to the toolbar, then click its icon. The side panel opens, and a green dot in its header means it's connected to the server.
 
 **To update later,** run `git pull` (or download the ZIP again). Then run `setup.bat` again if `requirements.txt` changed, and click the reload icon on ChordCue in your browser's extensions page.
 
@@ -90,8 +91,16 @@ On Linux with an NVIDIA GPU, add `--index-url https://download.pytorch.org/whl/c
 
 ## Using it
 
-- **In the browser:** play a song on YouTube, YouTube Music, open.spotify.com or SoundCloud and the panel appears. Music is analyzed automatically. For other YouTube videos you get a **Get chords** button (change this in the toolbar popup). Drag the panel by its header, shrink it to a pill with **–**, and toggle it with **Alt+Shift+C**.
-- **Spotify desktop app:** click the toolbar icon, then **Open chords window**. The window follows the Spotify app through Windows' media controls, the same info shown in the volume flyout. Click the lane or a bar to seek Spotify.
+Click the **ChordCue icon** (or press **Alt+Shift+C**) and the side panel opens beside the page. It decides what to follow by itself:
+
+1. **The song in the tab you're looking at:** YouTube, YouTube Music, open.spotify.com or SoundCloud.
+2. **Otherwise, the last tab that had a song**, so you can switch tabs while the music keeps playing.
+3. **Otherwise, the Spotify desktop app.** It reads Windows' media controls, the same info shown in the volume flyout.
+
+A song it hasn't seen before is analyzed as soon as it's picked up. The source shows in the panel's header (YouTube, Spotify app, and so on). Click the lane or a bar in the chart to jump there; this works on YouTube, YouTube Music, SoundCloud and the Spotify app. The **gear** opens settings: the server address, and **Analyze this song again**.
+
+If your browser has no side panel, the icon opens the same panel in a small window that follows the tab you clicked from.
+
 - **Controls:**
   - **Transpose:** moves the song up or down by semitones.
   - **Capo:** shows shapes relative to the capo. **Try capo N** suggests the fret with the easiest open shapes.
@@ -121,7 +130,7 @@ Results are cached in `data/songs/<id>/sheet.json`. The downloaded audio is dele
 | `CHORDCUE_DATA` | `./data` | where analyzed songs are stored |
 | `CHORDCUE_MAX_DURATION` | `900` | longest song accepted, in seconds |
 
-`start-server.bat --port 9000` changes the port. If you do, also set the address under **Settings → Server address** in the popup.
+`start-server.bat --port 9000` changes the port. If you do, also set the address under the panel's **gear → Server address**.
 
 ## Tests
 

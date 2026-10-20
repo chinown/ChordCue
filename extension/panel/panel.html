@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChordCue</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="../shared/view.css">
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body class="cc-theme">
+  <header class="pn-head">
+    <span class="pn-logo" id="logo"></span>
+    <span class="pn-song">
+      <b id="title">ChordCue</b>
+      <span id="subtitle"></span>
+    </span>
+    <span class="pn-source" id="source" hidden></span>
+    <span class="pn-dot" id="server-dot" title="Checking server"></span>
+    <button type="button" class="pn-icon" id="gear" aria-label="Settings" aria-expanded="false" aria-controls="settings"></button>
+  </header>
+
+  <section class="pn-settings" id="settings" hidden aria-label="Settings">
+    <div class="pn-row"><span class="cc-dim">Server</span><b id="server-line">Checking…</b></div>
+    <label class="pn-field">
+      <span class="cc-dim">Server address</span>
+      <span class="pn-inline">
+        <input id="server-url" type="url" spellcheck="false" placeholder="http://127.0.0.1:8765">
+        <button type="button" class="cc-btn" id="save-url">Save</button>
+      </span>
+    </label>
+    <p class="cc-dim pn-small" id="url-note"></p>
+    <button type="button" class="cc-btn" data-act="reanalyze">Analyze this song again</button>
+    <p class="cc-dim pn-small">Shortcut: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> opens ChordCue.</p>
+  </section>
+
+  <main class="pn-body">
+    <div class="pn-status" id="status"></div>
+    <div id="view" hidden></div>
+  </main>
+
+  <script src="../shared/theory.js"></script>
+  <script src="../shared/diagrams.js"></script>
+  <script src="../shared/ui.js"></script>
+  <script src="../shared/view.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>

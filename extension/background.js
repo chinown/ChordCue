@@ -1,8 +1,20 @@
-// Service worker: the only part of the extension that talks to the local
-// server. Content scripts run with the page's origin, so the browser would
-// block them from calling localhost; this worker has host permission for it.
+// Service worker: opens the ChordCue panel when the toolbar icon is clicked,
+// and is the only part of the extension that talks to the local server.
 
 const DEFAULT_SERVER = "http://127.0.0.1:8765";
+
+// Clicking the icon (or Alt+Shift+C) opens the side panel. Browsers without a
+// side panel get the same page in a small window that follows the clicked tab.
+if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+} else {
+  chrome.action.onClicked.addListener((tab) => {
+    chrome.windows.create({
+      url: chrome.runtime.getURL(`panel/panel.html?tab=${tab.id}`),
+      type: "popup", width: 400, height: 780,
+    });
+  });
+}
 
 async function serverUrl() {
   const { serverUrl: url } = await chrome.storage.local.get("serverUrl");
@@ -29,36 +41,10 @@ async function api(method, path, body) {
   }
 }
 
-async function openCompanion() {
-  const url = chrome.runtime.getURL("companion/companion.html");
-  const existing = await chrome.tabs.query({ url });
-  if (existing.length) {
-    await chrome.windows.update(existing[0].windowId, { focused: true });
-    return;
-  }
-  await chrome.windows.create({ url, type: "popup", width: 420, height: 760 });
-}
-
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg.type === "api") {
     api(msg.method, msg.path, msg.body).then(reply);
     return true; // async reply
   }
-  if (msg.type === "open-companion") {
-    openCompanion().then(() => reply({ ok: true }));
-    return true;
-  }
   return false;
-});
-
-chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== "toggle-panel") return;
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab) return;
-  try {
-    await chrome.tabs.sendMessage(tab.id, { type: "toggle-panel" });
-  } catch {
-    // Not a supported site; open the desktop window instead.
-    openCompanion();
-  }
 });

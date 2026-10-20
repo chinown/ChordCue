@@ -1,0 +1,62 @@
+/* The side panel's frame; the chord view inside is styled by shared/view.css. */
+
+html, body { min-height: 100%; }
+body { margin: 0; background: var(--bg); }
+[hidden] { display: none !important; }
+
+.pn-head {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 10px 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.pn-logo { display: inline-flex; flex: none; }
+.pn-song { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.pn-song b { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pn-song span { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pn-source {
+  flex: none; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--muted); background: var(--surface-2); border: 1px solid var(--border);
+  padding: 2px 7px; border-radius: 999px;
+}
+.pn-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+.pn-dot.is-up { background: #4ade80; box-shadow: 0 0 6px rgba(74, 222, 128, .7); }
+.pn-dot.is-down { background: var(--danger); }
+.pn-icon {
+  flex: none; width: 30px; height: 30px; border-radius: 8px; border: 0;
+  background: transparent; color: var(--muted); display: inline-flex; align-items: center; justify-content: center;
+}
+.pn-icon:hover, .pn-icon[aria-expanded="true"] { background: var(--surface-3); color: var(--text); }
+
+.pn-settings {
+  display: flex; flex-direction: column; gap: 8px; align-items: flex-start;
+  padding: 10px 12px 12px; background: var(--surface); border-bottom: 1px solid var(--border);
+}
+.pn-row { display: flex; gap: 8px; }
+.pn-field { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.pn-inline { display: flex; gap: 6px; }
+.pn-inline input {
+  flex: 1; min-width: 0; background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font: inherit;
+}
+.pn-small { font-size: 11px; margin: 0; }
+kbd, code { background: var(--surface-2); border-radius: 4px; padding: 1px 5px; font-size: 12px; font-family: inherit; }
+
+.pn-body { padding: 12px; }
+.cc-msg p { margin: 0 0 8px; }
+.cc-dim { color: var(--muted); }
+.cc-btn {
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+  border-radius: 9px; padding: 7px 14px; font-weight: 600;
+}
+.cc-btn:hover { background: var(--surface-3); }
+.cc-progress { height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; margin: 4px 0 10px; }
+.cc-progress i { display: block; height: 100%; background: var(--accent); transition: width .4s ease; }
+
+/* Ads play through the same player: dim the chords until the song is back. */
+#view.is-ad { opacity: .35; pointer-events: none; }
+#view.is-ad::before {
+  content: "Ad playing. Chords resume with the song.";
+  display: block; margin-bottom: 8px; color: var(--muted); font-size: 12px; opacity: 1;
+}

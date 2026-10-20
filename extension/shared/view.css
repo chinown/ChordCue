@@ -1,5 +1,5 @@
-/* ChordCue view styles. Used inside the in-page panel's shadow root and by
-   the companion window, both of which put .cc-theme on their outer element. */
+/* ChordCue view styles, used by the side panel (panel/panel.html), which puts
+   .cc-theme on its body. */
 
 .cc-theme {
   --bg: #121318;

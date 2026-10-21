@@ -13,7 +13,7 @@
 - **Transpose and capo.** Move the song into a key that suits your voice, or set a capo and see which shapes to play. It also suggests the capo fret that gives the easiest open chords.
 - **Chart of the whole song.** Every bar with its chords. The current bar is highlighted, and clicking any bar jumps the song there.
 - **Spotify desktop app too.** When no tab is playing a song, the same panel follows the Spotify app on Windows, and can seek it.
-- **Runs on your own PC.** A local server finds the chords with AI models on your GPU. A new song takes about 20 seconds, and after that it opens instantly.
+- **Runs on your own PC, with nothing to start.** A small server starts by itself when you turn on your computer and runs in the background with no window, using about 60 MB of memory while idle. The AI models load only while a song is being analyzed (about 20 seconds per new song; after that it opens instantly) and are unloaded after 5 quiet minutes, so they don't hold your memory or graphics card while you do other things.
 
 | Live view | Chart view |
 |:---:|:---:|
@@ -30,24 +30,24 @@ You need **Windows 10 or 11** and **Brave, Chrome, Edge or Opera**. It takes abo
 2. **Double-click it.** If Windows says it protected your PC, click **More info → Run anyway**. Press **Enter** to start. If it asks to install Python or ffmpeg, type **Y** and press **Enter**.
 3. **Follow the page it opens.** When it's done, a page opens in your browser and walks you through adding the extension, which takes about a minute.
 
-The installer puts ChordCue in a `ChordCue` folder in your user folder and adds a **ChordCue** shortcut to your desktop. From then on, double-click **ChordCue** on your desktop, then click the ChordCue icon in your browser. To update ChordCue, run the installer again; your settings and songs are kept.
+The installer puts ChordCue in a `ChordCue` folder in your user folder and sets it to start by itself, in the background, whenever you turn on your computer. From then on there's nothing to start: play a song and click the ChordCue icon in your browser. To update ChordCue, run the installer again; your settings and songs are kept.
 
 ### Or set it up by hand
 
 1. **Download ChordCue.** Click the green **Code** button at the top of this page, then **Download ZIP**. Unzip it somewhere you'll keep it, like your Documents folder.
 2. **Double-click `setup.bat`** in the ChordCue folder. If Python or ffmpeg is missing, it asks to install them: type **Y** and press Enter. Then it downloads everything else (up to 3 GB). Wait until it says **Setup finished**.
-3. **Double-click `start-server.bat`.** A black window opens. Keep it open while you play music; you can minimize it. It's ready when it says `ChordCue server on http://127.0.0.1:8765`.
+3. **Double-click `start-server.bat`** to start ChordCue for now. A window opens; it's ready when it says `ChordCue server on http://127.0.0.1:8765`. (Once the extension is set up, tick **Start ChordCue when Windows starts** in the panel's settings and you won't need this window again.)
 4. **Add the extension to your browser.** Type `brave://extensions` in the address bar and press Enter (in Chrome it's `chrome://extensions`, in Edge `edge://extensions`). Turn on **Developer mode** (1), click **Load unpacked** (2) and choose the **`extension`** folder inside the ChordCue folder. ChordCue appears in the list (3). Then click the puzzle-piece icon in the toolbar and pin ChordCue.
 
    ![The browser's extensions page: 1 marks the Developer mode switch, 2 the Load unpacked button, 3 the ChordCue card that appears](docs/screenshots/load-unpacked.png)
 
 5. **Play a song and click the ChordCue icon.** The chords panel opens next to the page. A song's first play takes about 20 seconds to work out the chords. After that, it's instant.
 
-From then on, double-click `start-server.bat` and click the icon.
+Then open the panel's settings (the **gear**) and tick **Start ChordCue when Windows starts**. From then on, just click the icon.
 
 ### If something isn't working
 
-- **Red dot in the panel, or "The ChordCue server isn't running":** start ChordCue (the desktop shortcut, or `start-server.bat`) and keep its window open.
+- **Red dot in the panel, or "ChordCue isn't running":** double-click **ChordCue** on your desktop (or `start-server.bat` in the ChordCue folder). If this happens after every restart, tick **Start ChordCue when Windows starts** in the panel's settings.
 - **"Reload this tab to connect ChordCue":** refresh the page (F5).
 - **The chords run early or late:** nudge them with **Sync** in the panel.
 
@@ -59,7 +59,7 @@ Click the **ChordCue icon** (or press **Alt+Shift+C**) and the side panel opens 
 2. **Otherwise, the last tab that had a song**, so you can switch tabs while the music keeps playing.
 3. **Otherwise, the Spotify desktop app.** It reads Windows' media controls, the same info shown in the volume flyout.
 
-A song it hasn't seen before is analyzed as soon as it's picked up. The source shows in the panel's header (YouTube, Spotify app, and so on). Click the lane or a bar in the chart to jump there; this works on YouTube, YouTube Music, SoundCloud and the Spotify app. The **gear** opens settings: the server address, and **Analyze this song again**.
+A song it hasn't seen before is analyzed as soon as it's picked up. The source shows in the panel's header (YouTube, Spotify app, and so on). Click the lane or a bar in the chart to jump there; this works on YouTube, YouTube Music, SoundCloud and the Spotify app. The **gear** opens settings: **Start ChordCue when Windows starts**, the server address, and **Analyze this song again**.
 
 If your browser has no side panel, the icon opens the same panel in a small window that follows the tab you clicked from.
 
@@ -85,7 +85,14 @@ Transpose, capo and sync are remembered per song. Instrument, view and notation 
   ```
 
 - **Updating:** run `Install-ChordCue.bat` again (or `git pull`, or download the ZIP again and run `setup.bat`), then click the reload icon on ChordCue in your browser's extensions page.
-- **Uninstalling:** remove ChordCue on your browser's extensions page, delete the `ChordCue` folder in your user folder and the **ChordCue** desktop shortcut.
+- **Running in the background:** the Startup shortcut runs `pythonw -m chordcue.service`, which has no window and writes its log to `data/server.log`. Only one copy runs at a time. Turn it on or off with the panel's checkbox, or from the ChordCue folder:
+
+  ```bash
+  .venv\Scripts\python -m chordcue.autostart on
+  ```
+
+  (`off` and `status` work too.) To stop ChordCue until the next restart, end `pythonw.exe` in Task Manager.
+- **Uninstalling:** untick **Start ChordCue when Windows starts** (or run the command above with `off`), remove ChordCue on your browser's extensions page, then delete the `ChordCue` folder and the **ChordCue** desktop shortcut.
 
 ### Other systems
 
@@ -137,6 +144,7 @@ Results are cached in `data/songs/<id>/sheet.json`. The downloaded audio is dele
 | `CHORDCUE_DEVICE` | auto | `cuda` or `cpu` |
 | `CHORDCUE_DATA` | `./data` | where analyzed songs are stored |
 | `CHORDCUE_MAX_DURATION` | `900` | longest song accepted, in seconds |
+| `CHORDCUE_WORKER_IDLE` | `300` | seconds the analysis worker (and its models) stays loaded after the last song |
 
 `start-server.bat --port 9000` changes the port. If you do, also set the address under the panel's **gear → Server address**.
 

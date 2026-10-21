@@ -280,8 +280,10 @@
   }
 
   function offlineHtml() {
-    return `<p><b>The ChordCue server isn't running.</b></p>
-      <p>Start it by double-clicking <code>start-server.bat</code> in the ChordCue folder. This panel reconnects by itself.</p>`;
+    return `<p><b>ChordCue isn't running.</b></p>
+      <p>Double-click <b>ChordCue</b> on your desktop to start it (or <code>start-server.bat</code> in the ChordCue folder).
+      This panel reconnects by itself.</p>
+      <p class="cc-dim">It normally starts by itself when you turn on your computer.</p>`;
   }
 
   function showIdle(src) {
@@ -328,6 +330,27 @@
     const open = $("settings").hidden;
     $("settings").hidden = !open;
     $("gear").setAttribute("aria-expanded", String(open));
+    if (open) loadAutostart();
+  });
+
+  async function loadAutostart() {
+    const res = await api("GET", "/api/autostart");
+    const ok = res.ok && res.data.available;
+    $("autostart-row").hidden = !ok;
+    if (ok) $("autostart").checked = res.data.enabled;
+  }
+
+  $("autostart").addEventListener("change", async () => {
+    const box = $("autostart");
+    box.disabled = true;
+    const res = await api("POST", "/api/autostart", { enabled: box.checked });
+    box.disabled = false;
+    if (res.ok) {
+      box.checked = res.data.enabled;
+    } else {
+      box.checked = !box.checked;
+      $("url-note").textContent = (res.data && res.data.detail) || "Couldn't change that setting.";
+    }
   });
 
   document.addEventListener("click", (e) => {

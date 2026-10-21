@@ -9,8 +9,11 @@ from datetime import datetime, timezone
 import numpy as np
 import requests
 
-from . import audio, beats, config, index, sources, theory
-from .chords import recognize
+from . import config, index, sources, theory
+
+# audio, beats and chords.recognize pull in PyTorch and librosa, so they're
+# imported inside analyze(): the always-on server stays small until a song
+# actually needs analyzing (and that happens in the worker process).
 
 log = logging.getLogger(__name__)
 
@@ -84,6 +87,9 @@ def resolve_request(request):
 
 def analyze(request, on_progress=None, force=False):
     """Run the full pipeline for a link or a song name; returns the song id."""
+    from . import audio, beats
+    from .chords import recognize
+
     prog = Progress(on_progress)
     timings = {}
     t0 = time.perf_counter()

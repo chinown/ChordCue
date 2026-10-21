@@ -34,6 +34,8 @@ body { margin: 0; background: var(--bg); }
   padding: 10px 12px 12px; background: var(--surface); border-bottom: 1px solid var(--border);
 }
 .pn-row { display: flex; gap: 8px; }
+.pn-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.pn-check input { width: 16px; height: 16px; accent-color: var(--accent); margin: 0; }
 .pn-field { display: flex; flex-direction: column; gap: 4px; width: 100%; }
 .pn-inline { display: flex; gap: 6px; }
 .pn-inline input {

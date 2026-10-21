@@ -18,7 +18,6 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 import requests
-import yt_dlp
 
 from . import config, index
 
@@ -126,6 +125,7 @@ def song_id_for_url(url):
 
 def resolve(url):
     """Metadata for a link, without downloading audio."""
+    import yt_dlp
     platform, pid, canonical = parse_link(url)
     if platform == "spotify":
         return _resolve_spotify(pid, canonical)
@@ -260,6 +260,7 @@ def find_youtube_match(track):
     preferred because they're the same master Spotify streams, so the chord
     timing lines up with what's playing.
     """
+    import yt_dlp
     query = f"{track.artist} - {track.title}" if track.artist else track.title
     try:
         with yt_dlp.YoutubeDL(_ydl_opts(extract_flat="in_playlist")) as ydl:
@@ -299,6 +300,7 @@ def find_youtube_match(track):
 
 def download_audio(track, dest_dir, progress=None):
     """Download the track's audio into dest_dir; returns the file path."""
+    import yt_dlp
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
     source = track.audio_url or track.url

@@ -7,28 +7,43 @@
     GET  /api/songs      / GET /api/songs/{id} / DELETE /api/songs/{id}
     GET  /api/now-playing           what the desktop (Spotify app) is playing
     POST /api/now-playing/seek      {"position": seconds}
+    GET  /api/autostart / POST /api/autostart {"enabled": bool}   start with Windows
 
 Only listens on 127.0.0.1 by default. Browsers block web pages from calling
 it; the extension's background worker can, because the manifest grants it
-access to this origin.
+access to this origin. Start it with chordcue.service (see service.py).
 """
 
 import logging
 import re
 import shutil
+import threading
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from . import __version__, config, index, nowplaying, pipeline, sources
+from . import __version__, autostart, index, nowplaying, pipeline, sources
 from .jobs import JobManager
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 log = logging.getLogger("chordcue")
 
 app = FastAPI(title="ChordCue")
-jobs = JobManager()
+
+# Created when the server starts, not at import: the analysis worker process
+# imports this package too and must not start a queue of its own.
+_jobs = None
+_jobs_lock = threading.Lock()
+_log_path = None
+
+
+def jobs():
+    global _jobs
+    with _jobs_lock:
+        if _jobs is None:
+            _jobs = JobManager(log_path=_log_path)
+        return _jobs
 
 _SONG_ID = re.compile(r"^(yt|sc)-[\w-]{1,64}$")
 _EXTENSION_ORIGIN = re.compile(r"^(chrome|moz)-extension://")
@@ -75,8 +90,9 @@ def _check_id(song_id):
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "version": __version__, "device": config.device(),
-            "separate": config.separate_enabled(config.device()), "now_playing": nowplaying.available()}
+    # Deliberately cheap: no PyTorch here (the analysis worker has it).
+    return {"ok": True, "version": __version__, "now_playing": nowplaying.available(),
+            "analyzing": bool(_jobs and _jobs.worker_running)}
 
 
 @app.post("/api/lookup")
@@ -95,16 +111,16 @@ def analyze(req: SongRequest):
         song_id = _known_song_id(req)
         if song_id and pipeline.load_sheet(song_id):
             return {"status": "done", "song_id": song_id, "cached": True, "progress": 1.0}
-    job = jobs.submit(request, force=req.force)
-    return job.to_dict(jobs.position(job))
+    job = jobs().submit(request, force=req.force)
+    return job.to_dict(jobs().position(job))
 
 
 @app.get("/api/jobs/{job_id}")
 def job_status(job_id: str):
-    job = jobs.get(job_id)
+    job = jobs().get(job_id)
     if not job:
         raise HTTPException(404, "No such job (the server may have restarted)")
-    return job.to_dict(jobs.position(job))
+    return job.to_dict(jobs().position(job))
 
 
 @app.get("/api/songs")
@@ -149,19 +165,41 @@ def now_playing_seek(req: SeekRequest):
     return {"ok": nowplaying.seek(max(0.0, req.position))}
 
 
-def main():
-    import argparse
+@app.get("/api/autostart")
+def autostart_status():
+    return {"available": autostart.available(), "enabled": autostart.enabled()}
 
+
+class AutostartRequest(BaseModel):
+    enabled: bool
+
+
+@app.post("/api/autostart")
+def autostart_set(req: AutostartRequest):
+    if not autostart.available():
+        raise HTTPException(400, "Starting with Windows is only available on Windows.")
+    try:
+        autostart.enable() if req.enabled else autostart.disable()
+    except Exception as e:  # noqa: BLE001 - report to the panel
+        log.exception("changing autostart failed")
+        raise HTTPException(500, f"Couldn't change that setting: {e}") from e
+    return autostart_status()
+
+
+def run(host="127.0.0.1", port=8765, log_path=None):
     import uvicorn
 
-    parser = argparse.ArgumentParser(description="Run the ChordCue analysis server")
-    parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8765)
-    args = parser.parse_args()
+    global _log_path
+    _log_path = log_path
     pipeline.ensure_models()
-    log.info("ChordCue server on http://%s:%d (device: %s)", args.host, args.port, config.device())
-    uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
+    jobs()
+    log.info("ChordCue server on http://%s:%d", host, port)
+    uvicorn.run(app, host=host, port=port, log_level="warning")
 
 
 if __name__ == "__main__":
+    # Older shortcuts ran this module directly; the service adds the
+    # single-copy check and background logging.
+    from .service import main
+
     main()

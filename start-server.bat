@@ -1,13 +1,14 @@
 @echo off
-rem Runs the ChordCue analysis server on http://127.0.0.1:8765
+rem Runs the ChordCue server on http://127.0.0.1:8765 in a visible window, which
+rem is handy for watching what it does. Normally ChordCue runs in the background
+rem and starts with Windows instead: see chordcue/autostart.py.
 cd /d "%~dp0"
 if not exist .venv\Scripts\python.exe (echo Run setup.bat first. & pause & exit /b 1)
 title ChordCue server
 rem ffmpeg installed by winget lives here; this window's PATH may predate it.
 set "PATH=%LOCALAPPDATA%\Microsoft\WinGet\Links;%PATH%"
 echo.
-echo  ChordCue server. Keep this window open while you play music
-echo  (you can minimize it). Close it to stop ChordCue.
+echo  ChordCue server. Close this window to stop it.
 echo.
-.venv\Scripts\python -m chordcue.server %*
+.venv\Scripts\python -m chordcue.service %*
 pause

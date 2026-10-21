@@ -1,7 +1,7 @@
 @echo off
 rem Runs the ChordCue server on http://127.0.0.1:8765 in a visible window, which
-rem is handy for watching what it does. Normally ChordCue runs in the background
-rem and starts with Windows instead: see chordcue/autostart.py.
+rem is handy for watching what it does. Normally the browser starts ChordCue
+rem when you click its icon: see chordcue/native_host.py.
 cd /d "%~dp0"
 if not exist .venv\Scripts\python.exe (echo Run setup.bat first. & pause & exit /b 1)
 title ChordCue server

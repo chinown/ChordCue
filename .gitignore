@@ -4,3 +4,6 @@ __pycache__/
 data/
 models/
 *.tmp
+
+# Written by `python -m chordcue.native install` with this computer's paths.
+native/*.json

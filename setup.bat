@@ -57,11 +57,15 @@ echo  Installing the other requirements ...
 .venv\Scripts\python -m pip install -r requirements.txt --disable-pip-version-check || goto :fail
 echo  Downloading the chord model ...
 .venv\Scripts\python -c "from chordcue import pipeline; pipeline.ensure_models()" || goto :fail
+rem Lets the extension start ChordCue when you click its icon (native messaging).
+echo  Connecting ChordCue to your browsers ...
+.venv\Scripts\python -m chordcue.native install || goto :fail
 
 echo.
 echo  Setup finished.
 if not defined NOPAUSE (
-  echo  Next: double-click start-server.bat, then add the extension to your browser.
+  echo  Next: add the extension to your browser (see the README). After that,
+  echo  ChordCue starts by itself whenever you click its icon.
   echo.
   pause
 )

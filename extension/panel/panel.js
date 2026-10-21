@@ -229,10 +229,47 @@
     if (res.offline) {
       serverUp = false;
       renderDot();
-      return setStatus("offline", offlineHtml());
+      return startServer();
     }
     setStatus("error", `<p><b>Couldn't get the chords.</b></p><p class="cc-dim">${esc((res.data && res.data.detail) || `Server error ${res.status}`)}</p>
       <button type="button" class="cc-btn" data-act="retry">Try again</button>`);
+  }
+
+  // ------------------------------------------------------------ starting the server
+
+  // The browser starts ChordCue through native messaging (chordcue/native_host.py)
+  // the first time the panel needs it; it exits by itself once the panel closes.
+  const NATIVE_HOST = "com.chordcue.launcher";
+  let starting = false;
+  let lastStart = 0;
+  let startError = null;
+
+  async function startServer({ force = false } = {}) {
+    if (starting || (!force && Date.now() - lastStart < 15000)) {
+      if (!starting && song.status !== "ready") setStatus("offline", offlineHtml());
+      return;
+    }
+    starting = true;
+    lastStart = Date.now();
+    if (song.status !== "ready") {
+      setStatus("starting", `<p><b>Starting ChordCue…</b></p><p class="cc-dim">This takes a few seconds.</p>`);
+    }
+    let reply;
+    try {
+      reply = await chrome.runtime.sendNativeMessage(NATIVE_HOST, { cmd: "start" });
+    } catch (e) {
+      reply = { ok: false, error: String((e && e.message) || e) };
+    }
+    starting = false;
+    if (reply && reply.ok) {
+      startError = null;
+      await checkServer();
+      song.key = null;
+      reselect();
+      return;
+    }
+    startError = (reply && reply.error) || "Unknown error";
+    if (song.status !== "ready") setStatus("offline", offlineHtml());
   }
 
   async function saveSettings() {
@@ -280,10 +317,16 @@
   }
 
   function offlineHtml() {
-    return `<p><b>ChordCue isn't running.</b></p>
-      <p>Double-click <b>ChordCue</b> on your desktop to start it (or <code>start-server.bat</code> in the ChordCue folder).
-      This panel reconnects by itself.</p>
-      <p class="cc-dim">It normally starts by itself when you turn on your computer.</p>`;
+    const notSetUp = startError && /not found|not registered|forbidden/i.test(startError);
+    if (notSetUp) {
+      return `<p><b>ChordCue isn't set up on this computer yet.</b></p>
+        <p>Run <code>Install-ChordCue.bat</code> (or <code>setup.bat</code> in the ChordCue folder) once, then click Retry.</p>
+        <button type="button" class="cc-btn" data-act="start">Retry</button>`;
+    }
+    return `<p><b>ChordCue couldn't start.</b></p>
+      ${startError ? `<p class="cc-dim">${esc(startError)}</p>` : ""}
+      <p>Click Retry, or start it by hand with <code>start-server.bat</code> in the ChordCue folder.</p>
+      <button type="button" class="cc-btn" data-act="start">Retry</button>`;
   }
 
   function showIdle(src) {
@@ -291,7 +334,7 @@
     if (link && link.unsupported && link.supportedUrl) {
       return setStatus("idle", `<p>Reload this tab to connect ChordCue to it.</p>`);
     }
-    if (serverUp === false && !pinnedTab) return setStatus("offline", offlineHtml());
+    if (serverUp === false) return startServer();
     setStatus("idle", `<p><b>Play a song and its chords show up here.</b></p>
       <p class="cc-dim">Works on YouTube, YouTube Music, Spotify and SoundCloud in this window, and with the Spotify desktop app.</p>`);
   }
@@ -330,27 +373,6 @@
     const open = $("settings").hidden;
     $("settings").hidden = !open;
     $("gear").setAttribute("aria-expanded", String(open));
-    if (open) loadAutostart();
-  });
-
-  async function loadAutostart() {
-    const res = await api("GET", "/api/autostart");
-    const ok = res.ok && res.data.available;
-    $("autostart-row").hidden = !ok;
-    if (ok) $("autostart").checked = res.data.enabled;
-  }
-
-  $("autostart").addEventListener("change", async () => {
-    const box = $("autostart");
-    box.disabled = true;
-    const res = await api("POST", "/api/autostart", { enabled: box.checked });
-    box.disabled = false;
-    if (res.ok) {
-      box.checked = res.data.enabled;
-    } else {
-      box.checked = !box.checked;
-      $("url-note").textContent = (res.data && res.data.detail) || "Couldn't change that setting.";
-    }
   });
 
   document.addEventListener("click", (e) => {
@@ -359,6 +381,8 @@
     if (btn.dataset.act === "retry") {
       song.key = null;
       reselect();
+    } else if (btn.dataset.act === "start") {
+      startServer({ force: true });
     } else if (btn.dataset.act === "reanalyze" && song.request) {
       token++;
       analyze(true, token);
@@ -397,7 +421,8 @@
     const changed = up !== serverUp;
     serverUp = up;
     renderDot();
-    if (changed && up && (song.status === "offline")) {
+    if (!up) return startServer();
+    if (changed && (song.status === "offline" || song.status === "starting")) {
       song.key = null;
       reselect();
     }

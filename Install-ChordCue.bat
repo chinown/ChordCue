@@ -2,13 +2,13 @@
 setlocal EnableExtensions
 rem ChordCue installer: the only file a new user needs to download.
 rem It fetches ChordCue from GitHub into %USERPROFILE%\ChordCue, runs
-rem setup.bat (Python, ffmpeg and packages), makes ChordCue start by itself
-rem with Windows (no window), adds a desktop shortcut, starts it, and opens a
-rem page that walks through adding the extension.
+rem setup.bat (Python, ffmpeg and packages, and registers ChordCue so the
+rem extension can start it), then opens a page that walks through adding the
+rem extension. Nothing runs at startup: ChordCue starts when you click its icon.
 rem Run it again later to update; your settings and analyzed songs are kept.
 rem
 rem For testing: CHORDCUE_HOME (install folder), CHORDCUE_ZIP_URL (source),
-rem CHORDCUE_UNATTENDED=1 (no prompts), CHORDCUE_NO_LAUNCH=1 (skip steps 3-4).
+rem CHORDCUE_UNATTENDED=1 (no prompts), CHORDCUE_NO_LAUNCH=1 (don't open the page).
 title ChordCue installer
 if not defined CHORDCUE_HOME set "CHORDCUE_HOME=%USERPROFILE%\ChordCue"
 if not defined CHORDCUE_ZIP_URL set "CHORDCUE_ZIP_URL=https://github.com/chinown/ChordCue/archive/refs/heads/main.zip"
@@ -24,8 +24,7 @@ echo  This will:
 echo    1. Download ChordCue into  %DEST%
 echo    2. Install what it needs: Python and ffmpeg if missing (it asks first)
 echo       and up to 3 GB of music-analysis libraries
-echo    3. Make ChordCue start by itself when Windows starts, in the background
-echo    4. Open a page that shows how to add ChordCue to your browser
+echo    3. Open a page that shows how to add ChordCue to your browser
 echo.
 echo  It takes about 15 minutes, mostly downloading.
 echo.
@@ -38,7 +37,7 @@ where tar >nul 2>nul || goto :old_windows
 
 rem ---------------------------------------------------------------- download
 echo.
-echo  [1/4] Downloading ChordCue ...
+echo  [1/3] Downloading ChordCue ...
 mkdir "%WORK%" 2>nul
 curl -fsSL --retry 3 -o "%WORK%\chordcue.zip" "%CHORDCUE_ZIP_URL%" || goto :download_failed
 tar -xf "%WORK%\chordcue.zip" -C "%WORK%" || goto :download_failed
@@ -54,24 +53,14 @@ echo        Done: %DEST%
 
 rem ---------------------------------------------------------------- setup
 echo.
-echo  [2/4] Installing what ChordCue needs ...
+echo  [2/3] Installing what ChordCue needs ...
 call "%DEST%\setup.bat" --no-pause || goto :setup_failed
 
 if defined CHORDCUE_NO_LAUNCH goto :finished
 
-rem ---------------------------------------------------------------- start with Windows
+rem ---------------------------------------------------------------- last step
 echo.
-echo  [3/4] Setting ChordCue to start by itself when Windows starts ...
-pushd "%DEST%"
-"%DEST%\.venv\Scripts\python.exe" -m chordcue.autostart on || echo        Couldn't set that up; turn it on later in ChordCue's settings.
-"%DEST%\.venv\Scripts\python.exe" -m chordcue.autostart desktop >nul 2>nul
-popd
-
-rem ---------------------------------------------------------------- start
-echo.
-echo  [4/4] Starting ChordCue and opening the last step in your browser ...
-rem pythonw runs it without a window; it keeps running after this one closes.
-start "" /D "%DEST%" "%DEST%\.venv\Scripts\pythonw.exe" -m chordcue.service
+echo  [3/3] Opening the last step in your browser ...
 start "" "%DEST%\docs\setup-guide.html"
 
 :finished
@@ -82,8 +71,8 @@ echo.
 echo   Last step: add the extension to your browser. The page that
 echo   just opened shows how (it's also in %DEST%\docs\setup-guide.html).
 echo.
-echo   From now on ChordCue starts by itself when you turn on your
-echo   computer: just click its icon in your browser.
+echo   From then on, just click its icon in your browser: ChordCue
+echo   starts by itself and stops a few minutes after you close it.
 echo  ============================================================
 echo.
 if not defined CHORDCUE_UNATTENDED pause

@@ -7,23 +7,24 @@
     GET  /api/songs      / GET /api/songs/{id} / DELETE /api/songs/{id}
     GET  /api/now-playing           what the desktop (Spotify app) is playing
     POST /api/now-playing/seek      {"position": seconds}
-    GET  /api/autostart / POST /api/autostart {"enabled": bool}   start with Windows
 
 Only listens on 127.0.0.1 by default. Browsers block web pages from calling
 it; the extension's background worker can, because the manifest grants it
-access to this origin. Start it with chordcue.service (see service.py).
+access to this origin. Start it with chordcue.service (see service.py); when
+the browser starts it (native_host.py) it exits once the panel goes quiet.
 """
 
 import logging
 import re
 import shutil
 import threading
+import time
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from . import __version__, autostart, index, nowplaying, pipeline, sources
+from . import __version__, index, nowplaying, pipeline, sources
 from .jobs import JobManager
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -36,6 +37,7 @@ app = FastAPI(title="ChordCue")
 _jobs = None
 _jobs_lock = threading.Lock()
 _log_path = None
+_last_request = time.monotonic()
 
 
 def jobs():
@@ -56,6 +58,8 @@ async def only_extension_or_local(request: Request, call_next):
     origin = request.headers.get("origin")
     if origin and not _EXTENSION_ORIGIN.match(origin):
         return JSONResponse({"detail": "Forbidden origin"}, status_code=403)
+    global _last_request
+    _last_request = time.monotonic()
     return await call_next(request)
 
 
@@ -165,36 +169,35 @@ def now_playing_seek(req: SeekRequest):
     return {"ok": nowplaying.seek(max(0.0, req.position))}
 
 
-@app.get("/api/autostart")
-def autostart_status():
-    return {"available": autostart.available(), "enabled": autostart.enabled()}
+def _busy():
+    j = _jobs
+    return bool(j and any(job.status in ("queued", "running") for job in list(j.jobs.values())))
 
 
-class AutostartRequest(BaseModel):
-    enabled: bool
+def _exit_when_idle(server, idle_s):
+    """Stop the server once nothing has called it for idle_s seconds and no
+    analysis is running. The panel calls every few seconds while it's open."""
+    while not server.should_exit:
+        time.sleep(5)
+        if time.monotonic() - _last_request > idle_s and not _busy():
+            log.info("no requests for %d s; shutting down", idle_s)
+            server.should_exit = True
 
 
-@app.post("/api/autostart")
-def autostart_set(req: AutostartRequest):
-    if not autostart.available():
-        raise HTTPException(400, "Starting with Windows is only available on Windows.")
-    try:
-        autostart.enable() if req.enabled else autostart.disable()
-    except Exception as e:  # noqa: BLE001 - report to the panel
-        log.exception("changing autostart failed")
-        raise HTTPException(500, f"Couldn't change that setting: {e}") from e
-    return autostart_status()
-
-
-def run(host="127.0.0.1", port=8765, log_path=None):
+def run(host="127.0.0.1", port=8765, log_path=None, idle_exit_s=None):
     import uvicorn
 
     global _log_path
     _log_path = log_path
     pipeline.ensure_models()
     jobs()
-    log.info("ChordCue server on http://%s:%d", host, port)
-    uvicorn.run(app, host=host, port=port, log_level="warning")
+    server = uvicorn.Server(uvicorn.Config(app, host=host, port=port, log_level="warning"))
+    if idle_exit_s:
+        threading.Thread(target=_exit_when_idle, args=(server, idle_exit_s), name="idle-exit", daemon=True).start()
+        log.info("ChordCue server on http://%s:%d (exits after %d s without requests)", host, port, idle_exit_s)
+    else:
+        log.info("ChordCue server on http://%s:%d", host, port)
+    server.run()
 
 
 if __name__ == "__main__":

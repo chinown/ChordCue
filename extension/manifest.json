@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA31Y+hB0/Q3i4r1/lgCnMUpuKiZkM4ktZMvdSnTFCLVQmb0fEGmezEmPUu2DtlhOfqB1ZDqKIQxDx6xveZDsSCErWp9x4N6UiRZIwPzY4k2M/d24jpazFiwwHxvmO4rhmVutoDkjTRpPPZVvH3gJcm53JGYcBM2hUnSZNYSgEGIFXl8+W1KJAGBXmorE4DApPG6RSl1+ooMH/MhJQ4OaMdlHjmmKE+L3Ipe0O6Gb/hKqgTm7FoVhhji+K9wCPeH7/YxZkL6MHgGkCEhQ8gzvaPM7hlKuB6duhTRjnHBfsqUxsOmKLMunW6zYLKVLoEk+a+lBag9OrLM6Ws7nuT299HwIDAQAB",
   "name": "ChordCue",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Live chords for the song you're playing on YouTube, YouTube Music, Spotify or SoundCloud, with the next chord counted in.",
   "icons": {
     "16": "icons/icon16.png",
@@ -22,7 +23,12 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["storage", "sidePanel", "scripting"],
+  "permissions": [
+    "storage",
+    "sidePanel",
+    "scripting",
+    "nativeMessaging"
+  ],
   "host_permissions": [
     "http://127.0.0.1:8765/*",
     "http://localhost:8765/*",
@@ -32,7 +38,10 @@
     "https://open.spotify.com/*",
     "https://soundcloud.com/*"
   ],
-  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
   "content_scripts": [
     {
       "matches": [
@@ -42,7 +51,9 @@
         "https://open.spotify.com/*",
         "https://soundcloud.com/*"
       ],
-      "js": ["content/media-hook.js"],
+      "js": [
+        "content/media-hook.js"
+      ],
       "run_at": "document_start",
       "world": "MAIN"
     },
@@ -54,13 +65,18 @@
         "https://open.spotify.com/*",
         "https://soundcloud.com/*"
       ],
-      "js": ["content/sites.js", "content/bridge.js"],
+      "js": [
+        "content/sites.js",
+        "content/bridge.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "commands": {
     "_execute_action": {
-      "suggested_key": { "default": "Alt+Shift+C" },
+      "suggested_key": {
+        "default": "Alt+Shift+C"
+      },
       "description": "Open ChordCue"
     }
   }

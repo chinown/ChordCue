@@ -3,8 +3,13 @@ setlocal EnableExtensions
 rem One-time ChordCue setup. Installs Python 3.12 and ffmpeg with winget if
 rem they're missing (after asking), then creates .venv with the analysis
 rem libraries from requirements.txt.
+rem
+rem   setup.bat --no-pause      don't wait for a key press at the end
+rem   set CHORDCUE_TORCH=cpu    force the CPU build of PyTorch (or "cuda")
 cd /d "%~dp0"
 title ChordCue setup
+set "NOPAUSE="
+if /i "%~1"=="--no-pause" set "NOPAUSE=1"
 echo.
 echo  ChordCue setup
 echo  --------------
@@ -43,6 +48,8 @@ if not exist .venv\Scripts\python.exe (
 rem The CUDA build is only worth its 2.5 GB with an NVIDIA graphics card.
 set "TORCH_INDEX=https://download.pytorch.org/whl/cpu"
 where nvidia-smi >nul 2>nul && set "TORCH_INDEX=https://download.pytorch.org/whl/cu128"
+if /i "%CHORDCUE_TORCH%"=="cpu" set "TORCH_INDEX=https://download.pytorch.org/whl/cpu"
+if /i "%CHORDCUE_TORCH%"=="cuda" set "TORCH_INDEX=https://download.pytorch.org/whl/cu128"
 echo  Installing PyTorch from %TORCH_INDEX% (the biggest download) ...
 .venv\Scripts\python -m pip install --upgrade pip --quiet --disable-pip-version-check
 .venv\Scripts\python -m pip install torch==2.11.0 torchaudio==2.11.0 --index-url %TORCH_INDEX% || goto :fail
@@ -53,9 +60,11 @@ echo  Downloading the chord model ...
 
 echo.
 echo  Setup finished.
-echo  Next: double-click start-server.bat, then add the extension to your browser.
-echo.
-pause
+if not defined NOPAUSE (
+  echo  Next: double-click start-server.bat, then add the extension to your browser.
+  echo.
+  pause
+)
 exit /b 0
 
 rem ================================================================ helpers
@@ -94,19 +103,19 @@ exit /b 0
 :need_python
 echo.
 echo  ChordCue needs Python 3.12. Install it from https://www.python.org/downloads/
-echo  (tick "Add python.exe to PATH" in the installer), then double-click setup.bat again.
-pause
+echo  (tick "Add python.exe to PATH" in the installer), then run setup again.
+if not defined NOPAUSE pause
 exit /b 1
 
 :need_ffmpeg
 echo.
 echo  ChordCue needs ffmpeg. Install it from https://ffmpeg.org/download.html
-echo  (or run: winget install Gyan.FFmpeg), then double-click setup.bat again.
-pause
+echo  (or run: winget install Gyan.FFmpeg), then run setup again.
+if not defined NOPAUSE pause
 exit /b 1
 
 :fail
 echo.
-echo  Setup failed; see the messages above. Running setup.bat again usually picks up where it stopped.
-pause
+echo  Setup failed; see the messages above. Running setup again usually picks up where it stopped.
+if not defined NOPAUSE pause
 exit /b 1

@@ -19,45 +19,35 @@
 |:---:|:---:|
 | <img src="docs/screenshots/panel-live.png" width="280" alt="Live view: the current chord F with its barre diagram, the next chord C in one beat, the chord lane, the controls, and every chord in the song"> | <img src="docs/screenshots/panel-chart.png" width="280" alt="Chart view: four bars per row with the chords in each bar and the current bar highlighted"> |
 
-## Set it up in 5 steps
+## Install
 
-You only do this once. It takes about 15 minutes, mostly waiting for downloads. You need **Windows 10 or 11** and **Brave, Chrome, Edge or Opera**.
+You need **Windows 10 or 11** and **Brave, Chrome, Edge or Opera**. It takes about 15 minutes, mostly downloading, and you only do it once.
 
-### 1. Download ChordCue
+### The easy way: the installer
 
-Click the green **Code** button at the top of this page, then **Download ZIP**. Unzip it somewhere you'll keep it, like your Documents folder.
+1. **[Download Install-ChordCue.bat](https://github.com/chinown/ChordCue/releases/latest/download/Install-ChordCue.bat).** If your browser warns about this kind of file, choose **Keep**.
+   If that link doesn't work, click [Install-ChordCue.bat](Install-ChordCue.bat) in the file list instead, then the download button (⤓) at the top right.
+2. **Double-click it.** If Windows says it protected your PC, click **More info → Run anyway**. Press **Enter** to start. If it asks to install Python or ffmpeg, type **Y** and press **Enter**.
+3. **Follow the page it opens.** When it's done, a page opens in your browser and walks you through adding the extension, which takes about a minute.
 
-### 2. Double-click `setup.bat`
+The installer puts ChordCue in a `ChordCue` folder in your user folder and adds a **ChordCue** shortcut to your desktop. From then on, double-click **ChordCue** on your desktop, then click the ChordCue icon in your browser. To update ChordCue, run the installer again; your settings and songs are kept.
 
-It's in the ChordCue folder. If Windows asks whether to run it, click **Run** (or **More info → Run anyway**).
+### Or set it up by hand
 
-If Python or ffmpeg is missing, it asks to install them: type **Y** and press Enter. Then it downloads everything else (up to 3 GB). Wait until it says **Setup finished**.
+1. **Download ChordCue.** Click the green **Code** button at the top of this page, then **Download ZIP**. Unzip it somewhere you'll keep it, like your Documents folder.
+2. **Double-click `setup.bat`** in the ChordCue folder. If Python or ffmpeg is missing, it asks to install them: type **Y** and press Enter. Then it downloads everything else (up to 3 GB). Wait until it says **Setup finished**.
+3. **Double-click `start-server.bat`.** A black window opens. Keep it open while you play music; you can minimize it. It's ready when it says `ChordCue server on http://127.0.0.1:8765`.
+4. **Add the extension to your browser.** Type `brave://extensions` in the address bar and press Enter (in Chrome it's `chrome://extensions`, in Edge `edge://extensions`). Turn on **Developer mode** (1), click **Load unpacked** (2) and choose the **`extension`** folder inside the ChordCue folder. ChordCue appears in the list (3). Then click the puzzle-piece icon in the toolbar and pin ChordCue.
 
-### 3. Double-click `start-server.bat`
+   ![The browser's extensions page: 1 marks the Developer mode switch, 2 the Load unpacked button, 3 the ChordCue card that appears](docs/screenshots/load-unpacked.png)
 
-A black window opens. Keep it open while you play music; you can minimize it. It's ready when it says `ChordCue server on http://127.0.0.1:8765`.
+5. **Play a song and click the ChordCue icon.** The chords panel opens next to the page. A song's first play takes about 20 seconds to work out the chords. After that, it's instant.
 
-### 4. Add the extension to your browser
-
-Type `brave://extensions` in the address bar and press Enter (in Chrome it's `chrome://extensions`, in Edge `edge://extensions`). Then:
-
-1. Turn on **Developer mode**, top right.
-2. Click **Load unpacked** and choose the **`extension`** folder inside the ChordCue folder.
-3. ChordCue appears in the list.
-
-![The browser's extensions page: 1 marks the Developer mode switch, 2 the Load unpacked button, 3 the ChordCue card that appears](docs/screenshots/load-unpacked.png)
-
-Last, click the puzzle-piece icon in the browser's toolbar and pin ChordCue, so its icon is always visible.
-
-### 5. Play a song and click the ChordCue icon
-
-Open a song on YouTube, YouTube Music, Spotify or SoundCloud, then click the ChordCue icon. The chords panel opens next to the page. A song's first play takes about 20 seconds to work out the chords. After that, it's instant.
-
-**From then on,** just double-click `start-server.bat` and click the icon.
+From then on, double-click `start-server.bat` and click the icon.
 
 ### If something isn't working
 
-- **Red dot in the panel, or "The ChordCue server isn't running":** double-click `start-server.bat` and keep its window open.
+- **Red dot in the panel, or "The ChordCue server isn't running":** start ChordCue (the desktop shortcut, or `start-server.bat`) and keep its window open.
 - **"Reload this tab to connect ChordCue":** refresh the page (F5).
 - **The chords run early or late:** nudge them with **Sync** in the panel.
 
@@ -94,7 +84,8 @@ Transpose, capo and sync are remembered per song. Instrument, view and notation 
   git clone https://github.com/chinown/ChordCue.git
   ```
 
-- **Updating:** run `git pull` (or download the ZIP again), run `setup.bat` again, then click the reload icon on ChordCue in your browser's extensions page.
+- **Updating:** run `Install-ChordCue.bat` again (or `git pull`, or download the ZIP again and run `setup.bat`), then click the reload icon on ChordCue in your browser's extensions page.
+- **Uninstalling:** remove ChordCue on your browser's extensions page, delete the `ChordCue` folder in your user folder and the **ChordCue** desktop shortcut.
 
 ### Other systems
 

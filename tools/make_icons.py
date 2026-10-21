@@ -1,9 +1,11 @@
-"""Draw the extension's toolbar icons (the same mark as shared/ui.js)."""
+"""Draw the extension's toolbar icons and the desktop-shortcut icon
+(the same mark as shared/ui.js)."""
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
 OUT = Path(__file__).resolve().parent.parent / "extension" / "icons"
+ICO = Path(__file__).resolve().parent / "chordcue.ico"
 AMBER, INK, WHITE = (245, 165, 36, 255), (29, 20, 0, 255), (255, 255, 255, 255)
 
 
@@ -30,3 +32,7 @@ if __name__ == "__main__":
     for size in (16, 32, 48, 128):
         draw(size).save(OUT / f"icon{size}.png")
     print("wrote", sorted(p.name for p in OUT.glob("*.png")))
+    # Windows shortcut icon: every size Explorer asks for, each drawn at that size.
+    sizes = (16, 24, 32, 48, 64, 128, 256)
+    draw(256).save(ICO, sizes=[(s, s) for s in sizes], append_images=[draw(s) for s in sizes[:-1]])
+    print("wrote", ICO.name)
